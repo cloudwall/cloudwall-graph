@@ -15,19 +15,19 @@
  */
 package cloudwall.graph.io.graphviz;
 
-import com.google.common.collect.ImmutableList;
-import org.javafp.parsecj.Parser;
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
-import cloudwall.graph.io.GraphOutput;
 import cloudwall.graph.io.GraphInput;
+import cloudwall.graph.io.GraphOutput;
+import com.google.common.collect.ImmutableList;
+import org.javafp.parsecj.Parser;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import static org.javafp.parsecj.Combinators.*;
+import static org.javafp.parsecj.Combinators.retn;
 import static org.javafp.parsecj.Text.string;
 import static org.javafp.parsecj.Text.wspaces;
 

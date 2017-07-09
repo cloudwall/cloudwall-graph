@@ -34,6 +34,7 @@ dependencies {
     compile 'ch.qos.logback:logback:0.5',
             'com.google.code.findbugs:jsr305:3.0.2',
             'com.google.guava:guava:22.0',
+            'javax.transaction:jta:1.1',
             'org.javafp:parsecj:0.2',
             'org.jooq:jool:0.9.12',
             'org.slf4j:slf4j-api:1.7.25'

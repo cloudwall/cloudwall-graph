@@ -22,23 +22,24 @@ import java.util.NoSuchElementException;
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
-public interface MutableGraph<N, E extends Edge> extends Graph<N,E> {
+public interface MutableGraph<V extends Vertex, E extends Edge> extends Graph<V,E> {
     /**
-     * Adds a new node to the given graph.
+     * Adds a new vertex to the given graph.
      */
-    void addNode(N node);
+    void addVertex(V vertex);
 
     /**
-     * Removes the given node from the graph, including any edges including it.
+     * Removes the given vertex from the graph, including any edges including it. For the latter note that you will
+     * receive events for the edge removals before the vertex removal.
      *
-     * @throws NoSuchElementException if the node is not a member of the graph
+     * @throws NoSuchElementException if the vertex is not a member of the graph
      */
-    void removeNode(N node) throws NoSuchElementException;
+    void removeVertex(V vertex) throws NoSuchElementException;
 
     /**
-     * Creates an edge for the given pair of nodes in the graph.
+     * Creates an edge for the given pair of vertices in the graph.
      *
-     * @throws NoSuchElementException if the edge nodes are not members of the graph
+     * @throws NoSuchElementException if the edge vertices are not members of the graph
      */
     void addEdge(E edge) throws NoSuchElementException;
 
@@ -48,4 +49,14 @@ public interface MutableGraph<N, E extends Edge> extends Graph<N,E> {
      * @throws NoSuchElementException if the edge is not in the graph.
      */
     void removeEdge(E edge) throws NoSuchElementException;
+
+    /**
+     * Adds the given listener to receive notification of add/remove operations on vertices & edges.
+     */
+    void addGraphChangeListener(GraphChangeListener listener);
+
+    /**
+     * Removes the given listener, if present, else no-op.
+     */
+    void removeGraphChangeListener(GraphChangeListener listener);
 }

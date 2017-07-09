@@ -20,38 +20,43 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
 /**
- * A basic graph representation that lets you visit nodes and edges.
+ * A basic graph representation that lets you visit vertices and edges.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
 @ParametersAreNonnullByDefault
-public interface Graph<N, E extends Edge> {
+public interface Graph<V extends Vertex, E extends Edge> {
     /**
-     * Iterates over all nodes.
+     * Iterates over all vertices.
      */
-    void forEachNode(Consumer<N> nodeVisitor);
+    void forEachVertex(Consumer<V> visitor);
 
     /**
-     * Iterates over all edges connected to the given node, i.e. the ones connecting this node to its adjacencies.
+     * Iterates over all edges.
      */
-    void forEachConnectedEdge(N node, Consumer<E> edges);
+    void forEachEdge(Consumer<E> visitor);
 
     /**
-     * Given a starting node performs a BFS (Breadth First Search) from that node. In case of a graph with cycles
-     * the implementation should guarantee that the operation terminates and visits all nodes in scope only once.
+     * Iterates over all edges connected to the given vertex, i.e. the ones connecting this vertex to its adjacencies.
      */
-    void visitBreadthFirstFrom(N start, Consumer<N> nodeVisitor);
+    void forEachConnectedEdge(V vertex, Consumer<E> edges);
 
     /**
-     * Given a starting node performs a DFS (Depth First Search) from that node. In case of a graph with cycles
-     * the implementation should guarantee that the operation terminates and visits all nodes in scope only once.
+     * Given a starting vertex performs a BFS (Breadth First Search) from that vertex. In case of a graph with cycles
+     * the implementation should guarantee that the operation terminates and visits all vertices in scope only once.
      */
-    void visitDepthFirstFrom(N start, Consumer<N> nodeVisitor);
+    void visitBreadthFirstFrom(V start, Consumer<V> visitor);
 
     /**
-     * Gets the number of nodes declared in this graph.
+     * Given a starting vertex performs a DFS (Depth First Search) from that vertex. In case of a graph with cycles
+     * the implementation should guarantee that the operation terminates and visits all vertices in scope only once.
      */
-    @Nonnegative long getNodeCount();
+    void visitDepthFirstFrom(V start, Consumer<V> visitor);
+
+    /**
+     * Gets the number of vertices declared in this graph.
+     */
+    @Nonnegative long getVertexCount();
 
     /**
      * Gets the number of edges defined in this graph.

@@ -15,52 +15,76 @@
  */
 package cloudwall.graph;
 
+import org.jooq.lambda.tuple.Tuple;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Signed;
+import java.util.function.Consumer;
 
 /**
- * Basic interfaces for edges from one node to another.
+ * Basic interfaces for edges from one vertex to another.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
-public interface Edge<N> {
+public interface Edge<V extends Vertex> {
     @Nonnull
-    N getNode0();
+    V getVertex0();
 
     @Nonnull
-    N getNode1();
+    V getVertex1();
 
     /**
-     * Gets either node; by convention should return node0.
-     * @return
+     * Gets either vertex; by convention should return {@link #getVertex0}.
      */
     @Nonnull
-    N getEither();
+    default V getEither() {
+        return getVertex0();
+    }
 
     /**
-     * Gets the node opposite the given null.
+     * Gets the vertex opposite the given vertex.
      *
-     * @throws IllegalArgumentException if node is not on the edge
+     * @throws IllegalArgumentException if vertex is not on the edge
      */
     @Nonnull
-    N getOpposite(N node);
+    default V getOpposite(V vertex) {
+        if (vertex == getVertex0()) {
+            return getVertex1();
+        } else if (vertex == getVertex1()) {
+            return getVertex0();
+        } else {
+            throw new IllegalArgumentException("edge does not contain vertex: " + vertex);
+        }
+    }
+
+    default void forEachVertex(@Nonnull Consumer<V> visitor) {
+        visitor.accept(getVertex0());
+        visitor.accept(getVertex1());
+    }
 
     /**
-     * Specialization for directed edges that marks node0 and node1 as from and to ends respectively.
+     * Tests whether the given vertex is part of the edge.
      */
-    interface DirectedEdge<N> extends Edge<N> {
+    default boolean containsVertex(@Nonnull V vertex) {
+        return (getVertex0() == vertex) || (getVertex1() == vertex);
+    }
+
+    /**
+     * Specialization for directed edges that marks vertex0 and vertex1 as from and to ends respectively.
+     */
+    interface DirectedEdge<V extends Vertex> extends Edge<V> {
         @Nonnull
-        N getFrom();
+        V getFrom();
 
         @Nonnull
-        N getTo();
+        V getTo();
     }
 
     /**
      * Specialization for weighted edges (e.g. distance, strength of affinity, etc.).
      */
-    interface WeightedEdge<N> extends Edge<N> {
+    interface WeightedEdge<V extends Vertex> extends Edge<V> {
         @Nonnegative
         double getWeight();
     }
@@ -68,7 +92,7 @@ public interface Edge<N> {
     /**
      * Specialization for signed edges (e.g. friendship vs. enmity).
      */
-    interface SignedEdge<N> extends Edge<N> {
+    interface SignedEdge<V extends Vertex> extends Edge<V> {
         /**
          * Returns zero or one, always.
          */

@@ -16,12 +16,10 @@
 package cloudwall.graph;
 
 /**
- * Conversion between a given graph model (basic node/edge data) and an optimized form
+ * Conversion between a given graph model (basic vertex/edge data) and an optimized form
  * stripped of extraneous detail specific to the format and laid out internally to
- * facilitate graph analysis. You can also build a graph incrementally with the
- * {@link MutableGraph} interface -- compilation is intended for loaded models, and
- * to separate the concerns of representing graph data from graph analysis; tools
- * like format converters, basic viewers or pretty-printers can be built with just the model.
+ * facilitate graph analysis. Compilation is intended for loaded models, and
+ * to separate the concerns of representing graph data from graph analysis.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
