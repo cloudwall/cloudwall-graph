@@ -19,10 +19,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -52,36 +49,44 @@ public class AdjacencyListGraphTest {
      *
      */
 
-    private Map<Object,DefaultVertex> vertexMap = new HashMap<>();
+    private Map<Object,LightweightVertex> vertexMap = new HashMap<>();
 
 
     @Before
     public void buildVertexMap() {
         for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
-            DefaultVertex v = new DefaultVertex(id);
+            LightweightVertex v = new LightweightVertex(id);
             vertexMap.put(v.getVertexId(), v);
         }
     }
 
     @Test
     public void bfsAcyclicGraph() {
-        aDirectAcyclicGraph().visitBreadthFirstFrom(vertexMap.get("A"), v -> System.out.println(v.getVertexId()));
-
+        List<LightweightVertex> vertices = bfs(aDirectAcyclicGraph());
+        assertEquals(createVertices("A", "B", "C", "D", "E", "F", "G", "H", "I"), vertices);
     }
 
     @Test
     public void bfsGraphWithCycles() {
-
+        List<LightweightVertex> vertices = bfs(aGraphWithCycles());
+        assertEquals(createVertices("A", "B", "C", "D", "E", "F", "G", "H", "I"), vertices);
     }
 
     @Test
     public void dfsAcyclicGraph() {
-        aDirectAcyclicGraph().visitDepthFirstFrom(vertexMap.get("A"), v -> System.out.println(v.getVertexId()));
+        List<LightweightVertex> vertices = dfs(aDirectAcyclicGraph());
+        assertEquals(createVertices("A", "C", "G", "I", "F", "E", "H", "B", "D"), vertices);
+    }
+
+    @Test
+    public void dfsAGraphWithCycles() {
+        List<LightweightVertex> vertices = dfs(aGraphWithCycles());
+        assertEquals(createVertices("A", "C", "G", "F", "E", "D", "B", "H", "I"), vertices);
     }
 
     @Test
     public void iterateAllVertices() {
-        Set<DefaultVertex> vertices = new HashSet<>();
+        Set<LightweightVertex> vertices = new HashSet<>();
         aDirectAcyclicGraph().forEachVertex(v -> {
             vertices.add(v);
             System.out.println(v);
@@ -93,7 +98,7 @@ public class AdjacencyListGraphTest {
 
     @Test
     public void iterateAllEdges() {
-        Set<DirectedEdge<DefaultVertex>> edges = new HashSet<>();
+        Set<DirectedEdge<LightweightVertex>> edges = new HashSet<>();
         AtomicInteger numAdjacentToC = new AtomicInteger();
 
         aDirectAcyclicGraph().forEachEdge(e -> {
@@ -109,8 +114,27 @@ public class AdjacencyListGraphTest {
 
     }
 
-    private Graph<DefaultVertex,DirectedEdge> aDirectAcyclicGraph() {
-        MutableGraph<DefaultVertex,DirectedEdge> graph = new AdjacencyListGraph<>();
+    private List<LightweightVertex> bfs(Graph<LightweightVertex,DirectedEdge> graph) {
+        List<LightweightVertex> vertices = new ArrayList<>();
+        graph.visitBreadthFirstFrom(vertexMap.get("A"), v -> {
+            vertices.add(v);
+            System.out.println(v.getVertexId());
+        });
+        assertEquals(9, vertices.size());
+        return vertices;
+    }
+
+    private List<LightweightVertex> dfs(Graph<LightweightVertex,DirectedEdge> graph) {
+        List<LightweightVertex> vertices = new ArrayList<>();
+        graph.visitDepthFirstFrom(vertexMap.get("A"), v -> {
+            vertices.add(v);
+            System.out.println(v.getVertexId());
+        });
+        return vertices;
+    }
+
+    private Graph<LightweightVertex,DirectedEdge> aDirectAcyclicGraph() {
+        MutableGraph<LightweightVertex,DirectedEdge> graph = new AdjacencyListGraph<>();
 
         for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
             graph.addVertex(vertexMap.get(id));
@@ -123,6 +147,37 @@ public class AdjacencyListGraphTest {
         graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("G")));
         graph.addEdge(new DirectedEdge<>(vertexMap.get("E"), vertexMap.get("H")));
         graph.addEdge(new DirectedEdge<>(vertexMap.get("G"), vertexMap.get("I")));
+
+        return graph;
+    }
+
+    private List<LightweightVertex> createVertices(String... vertexIds) {
+        List<LightweightVertex> vertices = new ArrayList<>();
+        for (String id : vertexIds) {
+            vertices.add(vertexMap.get(id));
+        }
+        return vertices;
+    }
+
+    private Graph<LightweightVertex,DirectedEdge> aGraphWithCycles() {
+        MutableGraph<LightweightVertex,DirectedEdge> graph = new AdjacencyListGraph<>();
+
+        for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
+            graph.addVertex(vertexMap.get(id));
+        }
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("A"), vertexMap.get("B")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("A"), vertexMap.get("C")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("B"), vertexMap.get("D")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("B"), vertexMap.get("C")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("E")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("F")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("G")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("E"), vertexMap.get("H")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("G"), vertexMap.get("I")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("D"), vertexMap.get("E")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("E"), vertexMap.get("F")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("F"), vertexMap.get("G")));
+        graph.addEdge(new DirectedEdge<>(vertexMap.get("H"), vertexMap.get("I")));
 
         return graph;
     }

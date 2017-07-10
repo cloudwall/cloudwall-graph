@@ -24,11 +24,11 @@ import javax.annotation.concurrent.Immutable;
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
 @Immutable
-public class DefaultEdge<V extends Vertex> implements Edge<V> {
+public class LightweightEdge<V extends Vertex> implements Edge<V> {
     private final V vertex0;
     private final V vertex1;
 
-    public DefaultEdge(@Nonnull V vertex0, @Nonnull V vertex1) {
+    public LightweightEdge(@Nonnull V vertex0, @Nonnull V vertex1) {
         this.vertex0 = vertex0;
         this.vertex1 = vertex1;
     }

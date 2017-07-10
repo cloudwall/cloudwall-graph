@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
-public class DirectedEdge<V extends Vertex> extends DefaultEdge<V> {
+public class DirectedEdge<V extends Vertex> extends LightweightEdge<V> {
     public DirectedEdge(@Nonnull V from, @Nonnull V to) {
         super(from, to);
     }

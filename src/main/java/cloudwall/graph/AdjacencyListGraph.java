@@ -131,11 +131,7 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
     @Override
     public void addEdge(E edge) throws NoSuchElementException {
         edges.add(edge);
-        if (edge instanceof DirectedEdge) {
-            adjacencyMap.put(((DirectedEdge) edge).getFrom().getVertexId(), edge);
-        } else {
-            edge.forEachVertex(v -> adjacencyMap.put(v, edge));
-        }
+        edge.forEachVertex(v -> adjacencyMap.put(v.getVertexId(), edge));
         listenerSupport.edgeAdded(edge);
     }
 
