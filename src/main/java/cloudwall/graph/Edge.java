@@ -86,11 +86,33 @@ public interface Edge<V extends Vertex> {
     }
 
     /**
+     * Specialization for directed edges.
+     */
+    interface DirectedEdge<V extends Vertex> extends Edge<V> {
+        @Nonnull
+        default V getFrom() {
+            return getVertex0();
+        }
+
+        @Nonnull
+        default V getTo() {
+            return getVertex1();
+        }
+
+        @Override
+        default boolean isTraversable(V vertex) {
+            return (vertex == getFrom());
+        }
+    }
+
+    /**
      * Specialization for weighted edges (e.g. distance, strength of affinity, etc.).
      */
     interface WeightedEdge<V extends Vertex> extends Edge<V> {
         @Nonnegative
-        double getWeight();
+        default double getWeight() {
+            return 1.0;
+        }
     }
 
     /**
@@ -98,10 +120,12 @@ public interface Edge<V extends Vertex> {
      */
     interface SignedEdge<V extends Vertex> extends Edge<V> {
         /**
-         * Returns zero or one, always.
+         * Returns -1, zero or one, always.
          */
         @Signed
-        short getSign();
+        default short getSign() {
+            return 0;
+        }
 
         default boolean isPositive() {
             return getSign() >= 0;
