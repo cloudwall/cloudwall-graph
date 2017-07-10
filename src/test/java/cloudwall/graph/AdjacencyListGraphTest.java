@@ -62,32 +62,32 @@ public class AdjacencyListGraphTest {
 
     @Test
     public void bfsAcyclicGraph() {
-        List<LightweightVertex> vertices = bfs(aDirectAcyclicGraph());
+        List<LightweightVertex> vertices = bfs(aDirectedAcyclicGraph());
         assertEquals(createVertices("A", "B", "C", "D", "E", "F", "G", "H", "I"), vertices);
     }
 
     @Test
     public void bfsGraphWithCycles() {
-        List<LightweightVertex> vertices = bfs(aGraphWithCycles());
+        List<LightweightVertex> vertices = bfs(anUndirectedGraphWithCycles());
         assertEquals(createVertices("A", "B", "C", "D", "E", "F", "G", "H", "I"), vertices);
     }
 
     @Test
     public void dfsAcyclicGraph() {
-        List<LightweightVertex> vertices = dfs(aDirectAcyclicGraph());
+        List<LightweightVertex> vertices = dfs(aDirectedAcyclicGraph());
         assertEquals(createVertices("A", "C", "G", "I", "F", "E", "H", "B", "D"), vertices);
     }
 
     @Test
     public void dfsAGraphWithCycles() {
-        List<LightweightVertex> vertices = dfs(aGraphWithCycles());
+        List<LightweightVertex> vertices = dfs(anUndirectedGraphWithCycles());
         assertEquals(createVertices("A", "C", "G", "F", "E", "D", "B", "H", "I"), vertices);
     }
 
     @Test
     public void iterateAllVertices() {
         Set<LightweightVertex> vertices = new HashSet<>();
-        aDirectAcyclicGraph().forEachVertex(v -> {
+        aDirectedAcyclicGraph().forEachVertex(v -> {
             vertices.add(v);
             System.out.println(v);
         });
@@ -101,7 +101,7 @@ public class AdjacencyListGraphTest {
         Set<DirectedEdge<LightweightVertex>> edges = new HashSet<>();
         AtomicInteger numAdjacentToC = new AtomicInteger();
 
-        aDirectAcyclicGraph().forEachEdge(e -> {
+        aDirectedAcyclicGraph().forEachEdge(e -> {
             edges.add(e);
             if (e.getFrom().getVertexId().equals("C")) {
                 numAdjacentToC.incrementAndGet();
@@ -114,7 +114,7 @@ public class AdjacencyListGraphTest {
 
     }
 
-    private List<LightweightVertex> bfs(Graph<LightweightVertex,DirectedEdge> graph) {
+    private List<LightweightVertex> bfs(Graph<LightweightVertex,? extends LightweightEdge> graph) {
         List<LightweightVertex> vertices = new ArrayList<>();
         graph.visitBreadthFirstFrom(vertexMap.get("A"), v -> {
             vertices.add(v);
@@ -124,7 +124,7 @@ public class AdjacencyListGraphTest {
         return vertices;
     }
 
-    private List<LightweightVertex> dfs(Graph<LightweightVertex,DirectedEdge> graph) {
+    private List<LightweightVertex> dfs(Graph<LightweightVertex,? extends LightweightEdge> graph) {
         List<LightweightVertex> vertices = new ArrayList<>();
         graph.visitDepthFirstFrom(vertexMap.get("A"), v -> {
             vertices.add(v);
@@ -133,7 +133,7 @@ public class AdjacencyListGraphTest {
         return vertices;
     }
 
-    private Graph<LightweightVertex,DirectedEdge> aDirectAcyclicGraph() {
+    private Graph<LightweightVertex,DirectedEdge> aDirectedAcyclicGraph() {
         MutableGraph<LightweightVertex,DirectedEdge> graph = new AdjacencyListGraph<>();
 
         for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
@@ -147,6 +147,29 @@ public class AdjacencyListGraphTest {
         graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("G")));
         graph.addEdge(new DirectedEdge<>(vertexMap.get("E"), vertexMap.get("H")));
         graph.addEdge(new DirectedEdge<>(vertexMap.get("G"), vertexMap.get("I")));
+
+        return graph;
+    }
+
+    private Graph<LightweightVertex,LightweightEdge> anUndirectedGraphWithCycles() {
+        MutableGraph<LightweightVertex,LightweightEdge> graph = new AdjacencyListGraph<>();
+
+        for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
+            graph.addVertex(vertexMap.get(id));
+        }
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("A"), vertexMap.get("B")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("A"), vertexMap.get("C")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("B"), vertexMap.get("D")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("B"), vertexMap.get("C")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("C"), vertexMap.get("E")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("C"), vertexMap.get("F")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("C"), vertexMap.get("G")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("E"), vertexMap.get("H")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("G"), vertexMap.get("I")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("D"), vertexMap.get("E")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("E"), vertexMap.get("F")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("F"), vertexMap.get("G")));
+        graph.addEdge(new LightweightEdge<>(vertexMap.get("H"), vertexMap.get("I")));
 
         return graph;
     }
@@ -157,28 +180,5 @@ public class AdjacencyListGraphTest {
             vertices.add(vertexMap.get(id));
         }
         return vertices;
-    }
-
-    private Graph<LightweightVertex,DirectedEdge> aGraphWithCycles() {
-        MutableGraph<LightweightVertex,DirectedEdge> graph = new AdjacencyListGraph<>();
-
-        for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
-            graph.addVertex(vertexMap.get(id));
-        }
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("A"), vertexMap.get("B")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("A"), vertexMap.get("C")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("B"), vertexMap.get("D")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("B"), vertexMap.get("C")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("E")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("F")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("C"), vertexMap.get("G")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("E"), vertexMap.get("H")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("G"), vertexMap.get("I")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("D"), vertexMap.get("E")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("E"), vertexMap.get("F")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("F"), vertexMap.get("G")));
-        graph.addEdge(new DirectedEdge<>(vertexMap.get("H"), vertexMap.get("I")));
-
-        return graph;
     }
 }

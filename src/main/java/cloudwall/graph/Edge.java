@@ -58,6 +58,9 @@ public interface Edge<V extends Vertex> {
         }
     }
 
+    /**
+     * Helper method for iteration over the two edge members.
+     */
     default void forEachVertex(@Nonnull Consumer<V> visitor) {
         visitor.accept(getVertex0());
         visitor.accept(getVertex1());
@@ -68,6 +71,18 @@ public interface Edge<V extends Vertex> {
      */
     default boolean containsVertex(@Nonnull V vertex) {
         return (getVertex0() == vertex) || (getVertex1() == vertex);
+    }
+
+    /**
+     * Tests whether you can traverse from the given vertex to the opposite. Always true so long as the vertex is part
+     * of the edge by default; directed edges specialize to allow travel only in one direction.
+     */
+    default boolean isTraversable(V vertex) {
+        if (!containsVertex(vertex)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**

@@ -75,6 +75,11 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
         adjacencyMap.get(vertex.getVertexId()).forEach(edges);
     }
 
+
+    public void forEachTraversableEdge(V vertex, Consumer<E> edges) {
+        adjacencyMap.get(vertex.getVertexId()).stream().filter(e -> e.isTraversable(vertex)).forEach(edges);
+    }
+
     @Override
     public void visitBreadthFirstFrom(V start, Consumer<V> visitor) {
         Set<V> visitedVertices = new HashSet<>();
@@ -85,7 +90,7 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
             if (!visitedVertices.contains(current)) {
                 visitedVertices.add(current);
                 visitor.accept(current);
-                forEachConnectedEdge(current, e -> toVisitQueue.add(e.getOpposite(current)));
+                forEachTraversableEdge(current, e -> toVisitQueue.add(e.getOpposite(current)));
             }
         }
     }
@@ -100,7 +105,7 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
             if (!visitedVertices.contains(current)) {
                 visitedVertices.add(current);
                 visitor.accept(current);
-                forEachConnectedEdge(current, e -> toVisitStack.push(e.getOpposite(current)));
+                forEachTraversableEdge(current, e -> toVisitStack.push(e.getOpposite(current)));
             }
         }
     }

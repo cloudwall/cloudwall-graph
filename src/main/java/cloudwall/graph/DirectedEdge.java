@@ -22,6 +22,11 @@ public class DirectedEdge<V extends Vertex> extends LightweightEdge<V> {
         return getVertex1();
     }
 
+    @Override
+    public boolean isTraversable(V vertex) {
+        return (vertex == getFrom());
+    }
+
     public String toString() {
         return getFrom() + " -> " + getTo();
     }
