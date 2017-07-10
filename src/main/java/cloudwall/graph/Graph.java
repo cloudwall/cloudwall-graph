@@ -15,8 +15,9 @@
  */
 package cloudwall.graph;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
+import cloudwall.graph.analysis.GraphFunctor;
+
+import javax.annotation.*;
 import java.util.function.Consumer;
 
 /**
@@ -54,6 +55,12 @@ public interface Graph<V extends Vertex, E extends Edge> {
     void visitDepthFirstFrom(V start, Consumer<V> visitor);
 
     /**
+     * Given a unique vertex ID look up the vertex.
+     */
+    @Nullable
+    V getVertex(@Nonnull Object vertexId);
+
+    /**
      * Gets the number of vertices declared in this graph.
      */
     @Nonnegative long getVertexCount();
@@ -62,4 +69,8 @@ public interface Graph<V extends Vertex, E extends Edge> {
      * Gets the number of edges defined in this graph.
      */
     @Nonnegative long getEdgeCount();
+
+    default <R> R apply(GraphFunctor<V, E, Graph<V,E>, R> f) {
+        return f.apply(this);
+    }
 }

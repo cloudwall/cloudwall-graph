@@ -17,6 +17,8 @@ package cloudwall.graph.transaction;
 
 import cloudwall.graph.*;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,12 @@ public class TransactionalGraph<V extends Vertex,E extends Edge<V>> implements M
     @Override
     public void visitDepthFirstFrom(V start, Consumer<V> visitor) {
         delegate.visitDepthFirstFrom(start, visitor);
+    }
+
+    @Nullable
+    @Override
+    public V getVertex(@Nonnull Object vertexId) {
+        return delegate.getVertex(vertexId);
     }
 
     @Override

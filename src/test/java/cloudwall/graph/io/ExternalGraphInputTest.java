@@ -23,9 +23,7 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ExternalGraphInputTest {
     @Test

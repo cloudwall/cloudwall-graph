@@ -62,25 +62,25 @@ public class AdjacencyListGraphTest {
 
     @Test
     public void bfsAcyclicGraph() {
-        List<LightweightVertex> vertices = bfs(aDirectedAcyclicGraph());
+        List<LightweightVertex> vertices = bfs(aDirectedAcyclicGraph(), "A");
         assertEquals(createVertices("A", "B", "C", "D", "E", "F", "G", "H", "I"), vertices);
     }
 
     @Test
     public void bfsGraphWithCycles() {
-        List<LightweightVertex> vertices = bfs(anUndirectedGraphWithCycles());
+        List<LightweightVertex> vertices = bfs(anUndirectedGraphWithCycles(), "A");
         assertEquals(createVertices("A", "B", "C", "D", "E", "F", "G", "H", "I"), vertices);
     }
 
     @Test
     public void dfsAcyclicGraph() {
-        List<LightweightVertex> vertices = dfs(aDirectedAcyclicGraph());
+        List<LightweightVertex> vertices = dfs(aDirectedAcyclicGraph(), "A");
         assertEquals(createVertices("A", "C", "G", "I", "F", "E", "H", "B", "D"), vertices);
     }
 
     @Test
     public void dfsAGraphWithCycles() {
-        List<LightweightVertex> vertices = dfs(anUndirectedGraphWithCycles());
+        List<LightweightVertex> vertices = dfs(anUndirectedGraphWithCycles(), "A");
         assertEquals(createVertices("A", "C", "G", "F", "E", "D", "B", "H", "I"), vertices);
     }
 
@@ -111,12 +111,24 @@ public class AdjacencyListGraphTest {
         
         assertEquals(3, numAdjacentToC.get());
         assertEquals(8, edges.size());
+    }
+
+    @Test
+    public void breakDirectedGraphInTwo() {
+        MutableGraph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = aDirectedAcyclicGraph();
+        graph.removeVertex(vertexMap.get("A"));
+
+        assertEquals(8, graph.getVertexCount());
+        assertEquals(6, graph.getEdgeCount());
+
+        dfs(graph, "B");
+        dfs(graph, "C");
 
     }
 
-    private List<LightweightVertex> bfs(Graph<LightweightVertex,? extends Edge> graph) {
+    private List<LightweightVertex> bfs(Graph<LightweightVertex,? extends Edge> graph, String start) {
         List<LightweightVertex> vertices = new ArrayList<>();
-        graph.visitBreadthFirstFrom(vertexMap.get("A"), v -> {
+        graph.visitBreadthFirstFrom(vertexMap.get(start), v -> {
             vertices.add(v);
             System.out.println(v.getVertexId());
         });
@@ -124,16 +136,16 @@ public class AdjacencyListGraphTest {
         return vertices;
     }
 
-    private List<LightweightVertex> dfs(Graph<LightweightVertex,? extends Edge> graph) {
+    private List<LightweightVertex> dfs(Graph<LightweightVertex,? extends Edge> graph, String start) {
         List<LightweightVertex> vertices = new ArrayList<>();
-        graph.visitDepthFirstFrom(vertexMap.get("A"), v -> {
+        graph.visitDepthFirstFrom(vertexMap.get(start), v -> {
             vertices.add(v);
             System.out.println(v.getVertexId());
         });
         return vertices;
     }
 
-    private Graph<LightweightVertex,HeavyweightDirectedEdge<LightweightVertex>> aDirectedAcyclicGraph() {
+    private MutableGraph<LightweightVertex,HeavyweightDirectedEdge<LightweightVertex>> aDirectedAcyclicGraph() {
         MutableGraph<LightweightVertex,HeavyweightDirectedEdge<LightweightVertex>> graph = new AdjacencyListGraph<>();
 
         for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {
@@ -151,7 +163,7 @@ public class AdjacencyListGraphTest {
         return graph;
     }
 
-    private Graph<LightweightVertex,LightweightEdge> anUndirectedGraphWithCycles() {
+    private MutableGraph<LightweightVertex,LightweightEdge> anUndirectedGraphWithCycles() {
         MutableGraph<LightweightVertex,LightweightEdge> graph = new AdjacencyListGraph<>();
 
         for (String id : ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I")) {

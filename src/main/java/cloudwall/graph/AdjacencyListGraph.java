@@ -17,7 +17,6 @@ package cloudwall.graph;
 
 import cloudwall.graph.util.GraphChangeListenerSupport;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -49,7 +48,7 @@ import java.util.function.Consumer;
 @NotThreadSafe
 @ParametersAreNonnullByDefault
 public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements MutableGraph<V, E> {
-    private final Set<V> vertices = new HashSet<>();
+    private final Map<Object,V> vertices = new HashMap<>();
     private final Set<E> edges = new HashSet<>();
 
     private final Multimap<Object, E> adjacencyMap = ArrayListMultimap.create(1024, 8);
@@ -58,7 +57,7 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
 
     @Override
     public void forEachVertex(Consumer<V> visitor) {
-        for (V vertex : vertices) {
+        for (V vertex : vertices.values()) {
             visitor.accept(vertex);
         }
     }
@@ -76,6 +75,7 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
     }
 
 
+    @SuppressWarnings("WeakerAccess")
     public void forEachTraversableEdge(V vertex, Consumer<E> edges) {
         adjacencyMap.get(vertex.getVertexId()).stream().filter(e -> e.isTraversable(vertex)).forEach(edges);
     }
@@ -111,6 +111,11 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
     }
 
     @Override
+    public V getVertex(Object vertexId) {
+        return vertices.get(vertexId);
+    }
+
+    @Override
     public long getVertexCount() {
         return vertices.size();
     }
@@ -122,14 +127,14 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
 
     @Override
     public void addVertex(V vertex) {
-        vertices.add(vertex);
+        vertices.put(vertex.getVertexId(), vertex);
         listenerSupport.vertexAdded(vertex);
     }
 
     @Override
     public void removeVertex(V vertex) throws NoSuchElementException {
         forEachConnectedEdge(vertex, this::removeEdge);
-        vertices.remove(vertex);
+        vertices.remove(vertex.getVertexId());
         listenerSupport.vertexRemoved(vertex);
     }
 

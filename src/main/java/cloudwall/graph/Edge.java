@@ -15,8 +15,6 @@
  */
 package cloudwall.graph;
 
-import org.jooq.lambda.tuple.Tuple;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Signed;
