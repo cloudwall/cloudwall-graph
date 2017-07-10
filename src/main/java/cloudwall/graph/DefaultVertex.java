@@ -20,4 +20,23 @@ public class DefaultVertex implements Vertex {
     public Object getVertexId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DefaultVertex that = (DefaultVertex) o;
+
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    public String toString() {
+        return id.toString();
+    }
 }

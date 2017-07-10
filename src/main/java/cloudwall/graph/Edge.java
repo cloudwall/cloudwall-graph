@@ -71,17 +71,6 @@ public interface Edge<V extends Vertex> {
     }
 
     /**
-     * Specialization for directed edges that marks vertex0 and vertex1 as from and to ends respectively.
-     */
-    interface DirectedEdge<V extends Vertex> extends Edge<V> {
-        @Nonnull
-        V getFrom();
-
-        @Nonnull
-        V getTo();
-    }
-
-    /**
      * Specialization for weighted edges (e.g. distance, strength of affinity, etc.).
      */
     interface WeightedEdge<V extends Vertex> extends Edge<V> {

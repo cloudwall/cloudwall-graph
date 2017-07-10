@@ -42,6 +42,10 @@ public class DefaultEdge<V extends Vertex> implements Edge<V> {
     @Nonnull
     @Override
     public V getVertex1() {
-        return vertex0;
+        return vertex1;
+    }
+
+    public String toString() {
+        return getVertex0() + " - " + getVertex1();
     }
 }
