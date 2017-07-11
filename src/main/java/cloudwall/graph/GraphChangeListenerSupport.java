@@ -1,4 +1,4 @@
-package cloudwall.graph.util;
+package cloudwall.graph;
 
 import cloudwall.graph.*;
 

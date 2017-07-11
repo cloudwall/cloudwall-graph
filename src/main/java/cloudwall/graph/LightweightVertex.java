@@ -1,7 +1,5 @@
 package cloudwall.graph;
 
-import cloudwall.graph.util.VertexIdGenerator;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
@@ -13,13 +11,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class LightweightVertex implements Vertex {
     private final Object id;
-
-    /**
-     * Helper factory method for creating a vertex with an auto-generated ID.
-     */
-    public static LightweightVertex newInstance(VertexIdGenerator generator) {
-        return new LightweightVertex(generator.nextId());
-    }
 
     public LightweightVertex(@Nonnull Object id) {
         this.id = id;
