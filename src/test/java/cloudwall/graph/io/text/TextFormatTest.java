@@ -37,11 +37,38 @@ public class TextFormatTest {
         DataSource graphIn = new URLDataSource(resource);
         format.read(graphIn, model -> {
             Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
-            Collection<ConnectedComponentCollector.Component> components = graph.apply(new ConnectedComponentCollector<>());
-            components.forEach(System.out::println);
-
             assertEquals(25571, graph.getEdgeCount());
             assertEquals(1005, graph.getVertexCount());
+        });
+    }
+
+    // from http://algs4.cs.princeton.edu/42digraph/
+    @Test
+    public void loadTinyDirectedGraph() throws Exception {
+        TextFormat format = new TextFormat();
+        format.setSkipLines(2);
+
+        URL resource = getClass().getResource("tinyDG.txt");
+        DataSource graphIn = new URLDataSource(resource);
+        format.read(graphIn, model -> {
+            Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
+            Collection<ConnectedComponentCollector.Component> components = graph.apply(new ConnectedComponentCollector<>());
+            components.forEach(System.out::println);
+        });
+    }
+
+    // from http://algs4.cs.princeton.edu/42digraph/
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    public void loadTinyDAG() throws Exception {
+        TextFormat format = new TextFormat();
+        format.setSkipLines(2);
+
+        URL resource = getClass().getResource("tinyDAG.txt");
+        DataSource graphIn = new URLDataSource(resource);
+        format.read(graphIn, model -> {
+            Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
+            graph.visitDepthFirstFrom(graph.getVertex(0L), System.out::println);
         });
     }
 
