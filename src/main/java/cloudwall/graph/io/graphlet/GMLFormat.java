@@ -17,9 +17,8 @@ package cloudwall.graph.io.graphlet;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
-import cloudwall.graph.io.GraphInput;
-import cloudwall.graph.io.GraphOutput;
 
+import javax.activation.DataSource;
 import javax.activation.MimeType;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -39,12 +38,12 @@ public class GMLFormat implements GraphFormat<GMLModel> {
     }
 
     @Override
-    public void read(GraphInput in, Consumer<GMLModel> modelConsumer) throws GraphFormatException, IOException {
+    public void read(DataSource dataIn, Consumer<GMLModel> modelConsumer) throws GraphFormatException, IOException {
 
     }
 
     @Override
-    public void write(GraphOutput out, GMLModel model) {
+    public void write(DataSource dataOut, GMLModel model) {
 
     }
 

@@ -2,9 +2,8 @@ package cloudwall.graph.io.tulip;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
-import cloudwall.graph.io.GraphInput;
-import cloudwall.graph.io.GraphOutput;
 
+import javax.activation.DataSource;
 import javax.activation.MimeType;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -23,12 +22,12 @@ public class TulipFormat implements GraphFormat<TulipModel> {
     }
 
     @Override
-    public void read(GraphInput in, Consumer<TulipModel> modelConsumer) throws GraphFormatException, IOException {
+    public void read(DataSource dataIn, Consumer<TulipModel> modelConsumer) throws GraphFormatException, IOException {
 
     }
 
     @Override
-    public void write(GraphOutput out, TulipModel model) {
+    public void write(DataSource dataOut, TulipModel model) {
 
     }
 }

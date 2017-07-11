@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 /**
  * Traverses a graph and determines how many connected components comprise the graph. Each of these gets built as a
@@ -31,7 +30,8 @@ import java.util.stream.Stream;
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
-public class ConnectedComponentCollector<V extends Vertex, E extends Edge, G extends Graph<V,E>> implements GraphFunctor<V, E, G, Stream<ConnectedComponentCollector.Component>> {
+public class ConnectedComponentCollector<V extends Vertex, E extends Edge, G extends Graph<V,E>> implements GraphFunctor<V, E, G, Collection<ConnectedComponentCollector.Component>> {
+    @SuppressWarnings("WeakerAccess")
     public static class Component<V> {
         private final long componentNumber;
         private final Collection<V> vertices;
@@ -48,10 +48,14 @@ public class ConnectedComponentCollector<V extends Vertex, E extends Edge, G ext
         public Collection<V> getVertices() {
             return vertices;
         }
+
+        public String toString() {
+            return "Component #" + componentNumber + " => " + vertices.size() + " vertices";
+        }
     }
 
     @Override
-    public Stream<Component> apply(G g) {
+    public Collection<Component> apply(G g) {
         Collection<Component> components = new HashSet<>();
         Set<V> visited = new HashSet<>();
         AtomicLong numConnected = new AtomicLong(0L);
@@ -67,6 +71,6 @@ public class ConnectedComponentCollector<V extends Vertex, E extends Edge, G ext
                 components.add(new Component<>(numConnected.getAndIncrement(), vertices));
             }
         });
-        return components.stream();
+        return components;
     }
 }

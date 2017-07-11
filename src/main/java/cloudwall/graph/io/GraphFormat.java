@@ -17,6 +17,7 @@ package cloudwall.graph.io;
 
 import cloudwall.graph.GraphModel;
 
+import javax.activation.DataSource;
 import javax.activation.MimeType;
 import java.io.IOException;
 import java.util.ServiceLoader;
@@ -55,11 +56,11 @@ public interface GraphFormat<M extends GraphModel> {
     /**
      * Reads a graph a returns it to the given consumer when complete.
      */
-    void read(GraphInput in, Consumer<M> modelConsumer) throws GraphFormatException, IOException;
+    void read(DataSource dataIn, Consumer<M> modelConsumer) throws GraphFormatException, IOException;
 
     /**
      * Writes the given graph to the output stream.
      */
-    void write(GraphOutput out, M model);
+    void write(DataSource dataOut, M model) throws IOException;
 
 }

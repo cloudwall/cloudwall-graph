@@ -17,11 +17,10 @@ package cloudwall.graph.io.graphviz;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
-import cloudwall.graph.io.GraphInput;
-import cloudwall.graph.io.GraphOutput;
 import com.google.common.collect.ImmutableList;
 import org.javafp.parsecj.Parser;
 
+import javax.activation.DataSource;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import java.io.IOException;
@@ -69,12 +68,12 @@ public class GraphvizDotFormat implements GraphFormat<GraphvizDotModel> {
     }
 
     @Override
-    public void read(GraphInput in, Consumer<GraphvizDotModel> modelConsumer) throws GraphFormatException, IOException {
+    public void read(DataSource dataIn, Consumer<GraphvizDotModel> modelConsumer) throws GraphFormatException, IOException {
 
     }
 
     @Override
-    public void write(GraphOutput out, GraphvizDotModel model) {
+    public void write(DataSource dataOut, GraphvizDotModel model) {
 
     }
 

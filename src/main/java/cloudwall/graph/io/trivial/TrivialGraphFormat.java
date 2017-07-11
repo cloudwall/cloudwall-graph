@@ -17,9 +17,8 @@ package cloudwall.graph.io.trivial;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
-import cloudwall.graph.io.GraphInput;
-import cloudwall.graph.io.GraphOutput;
 
+import javax.activation.DataSource;
 import javax.activation.MimeType;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -37,12 +36,12 @@ public class TrivialGraphFormat implements GraphFormat<TrivialGraphModel> {
     }
 
     @Override
-    public void read(GraphInput in, Consumer<TrivialGraphModel> modelConsumer) throws GraphFormatException, IOException {
+    public void read(DataSource dataIn, Consumer<TrivialGraphModel> modelConsumer) throws GraphFormatException, IOException {
 
     }
 
     @Override
-    public void write(GraphOutput out, TrivialGraphModel model) {
+    public void write(DataSource dataOut, TrivialGraphModel model) {
 
     }
 }

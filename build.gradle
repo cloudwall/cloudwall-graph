@@ -24,30 +24,12 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-configurations {
-    benchmarks {
-        extendsFrom testCompile
-    }
-}
-
 dependencies {
     compile 'ch.qos.logback:logback:0.5',
             'com.google.code.findbugs:jsr305:3.0.2',
             'com.google.guava:guava:22.0',
-            'javax.transaction:jta:1.1',
             'org.javafp:parsecj:0.2',
             'org.jooq:jool:0.9.12',
             'org.slf4j:slf4j-api:1.7.25'
     testCompile 'junit:junit:4.12'
-    benchmarks 'org.graphstream:gs-ui:1.3',
-                'org.jgrapht:jgrapht-core:1.0.1',
-                'org.tinyjee.jgraphx:jgraphx:3.4.1.3',
-                'com.github.Erdos-Graph-Framework:Erdos:v1.0'
-}
-
-idea {
-    module {
-        testSourceDirs += file('src/benchmarks/java')
-        scopes.TEST.plus += [configurations.benchmarks]
-    }
 }
