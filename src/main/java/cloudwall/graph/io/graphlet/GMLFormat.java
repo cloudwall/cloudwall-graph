@@ -20,6 +20,7 @@ import cloudwall.graph.io.GraphFormatException;
 
 import javax.activation.DataSource;
 import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -32,9 +33,18 @@ import java.util.function.Consumer;
  * @see <a href="http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf">GML: A portable Graph File Format</a>
  */
 public class GMLFormat implements GraphFormat<GMLModel> {
+    private static final MimeType[] CONTENT_TYPES;
+    static {
+        try {
+            CONTENT_TYPES = new MimeType[] { new MimeType("application/x-graphlet") };
+        } catch (MimeTypeParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
-    public Iterable<MimeType> getSupportedContentTypes() {
-        return null;
+    public MimeType[] getSupportedContentTypes() {
+        return CONTENT_TYPES;
     }
 
     @Override

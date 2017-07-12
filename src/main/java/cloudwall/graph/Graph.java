@@ -51,6 +51,7 @@ public interface Graph<V extends Vertex, E extends Edge> {
     /**
      * Given a starting vertex performs a DFS (Depth First Search) from that vertex. In case of a graph with cycles
      * the implementation should guarantee that the operation terminates and visits all vertices in scope only once.
+     * The default visiting order is <em>pre-order</em>.
      */
     void visitDepthFirstFrom(V start, Consumer<V> visitor);
 

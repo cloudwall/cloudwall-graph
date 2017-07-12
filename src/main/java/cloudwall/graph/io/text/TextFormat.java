@@ -20,6 +20,7 @@ import cloudwall.graph.io.GraphFormatException;
 
 import javax.activation.DataSource;
 import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -35,11 +36,20 @@ import java.util.function.Consumer;
  * @see cloudwall.graph.io.trivial.TrivialGraphFormat
  */
 public class TextFormat implements GraphFormat<EdgeListModel> {
+    private static final MimeType[] CONTENT_TYPES;
+    static {
+        try {
+            CONTENT_TYPES = new MimeType[] { new MimeType("text/plain") };
+        } catch (MimeTypeParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private int skipLines = 0;
 
     @Override
-    public Iterable<MimeType> getSupportedContentTypes() {
-        return null;
+    public MimeType[] getSupportedContentTypes() {
+        return CONTENT_TYPES;
     }
 
     @Override

@@ -19,10 +19,12 @@ import cloudwall.graph.Graph;
 import cloudwall.graph.HeavyweightDirectedEdge;
 import cloudwall.graph.LightweightVertex;
 import cloudwall.graph.analysis.ConnectedComponentCollector;
+import cloudwall.graph.io.StringDataSource;
 import org.junit.Test;
 
 import javax.activation.DataSource;
 import javax.activation.URLDataSource;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 
@@ -69,6 +71,14 @@ public class TextFormatTest {
         format.read(graphIn, model -> {
             Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
             graph.visitDepthFirstFrom(graph.getVertex(0L), System.out::println);
+
+            StringDataSource dataOut = new StringDataSource();
+            try {
+                format.write(dataOut, model);
+                System.out.println(dataOut);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 

@@ -51,7 +51,7 @@ public interface GraphFormat<M extends GraphModel> {
     /**
      * Gets the content types that this particular format supports, e.g. text/vnd.graphviz for Graphviz DOT.
      */
-    Iterable<MimeType> getSupportedContentTypes();
+    MimeType[] getSupportedContentTypes();
 
     /**
      * Reads a graph a returns it to the given consumer when complete.

@@ -20,6 +20,7 @@ import cloudwall.graph.io.GraphFormatException;
 
 import javax.activation.DataSource;
 import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -30,9 +31,18 @@ import java.util.function.Consumer;
  * @see <a href="https://en.wikipedia.org/wiki/Trivial_Graph_Format">Trivial Graph Format (Wikipedia)</a>
  */
 public class TrivialGraphFormat implements GraphFormat<TrivialGraphModel> {
+    private static final MimeType[] CONTENT_TYPES;
+    static {
+        try {
+            CONTENT_TYPES = new MimeType[] { new MimeType("chemical/x-mdl-tgf") };
+        } catch (MimeTypeParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
-    public Iterable<MimeType> getSupportedContentTypes() {
-        return null;
+    public MimeType[] getSupportedContentTypes() {
+        return CONTENT_TYPES;
     }
 
     @Override

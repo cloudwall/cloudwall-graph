@@ -38,10 +38,10 @@ import static org.javafp.parsecj.Text.wspaces;
  */
 @SuppressWarnings("unchecked")
 public class GraphvizDotFormat implements GraphFormat<GraphvizDotModel> {
-    private static final Iterable<MimeType> CONTENT_TYPES;
+    private static final MimeType[] CONTENT_TYPES;
     static {
         try {
-            CONTENT_TYPES = ImmutableList.of(new MimeType("text/vnd.graphviz"));
+            CONTENT_TYPES = new MimeType[] { new MimeType("text/vnd.graphviz") };
         } catch (MimeTypeParseException e) {
             throw new RuntimeException(e);
         }
@@ -63,7 +63,7 @@ public class GraphvizDotFormat implements GraphFormat<GraphvizDotModel> {
     private static final Parser<Character, String> undirectedEdgeOp = token(string("--"));
 
     @Override
-    public Iterable<MimeType> getSupportedContentTypes() {
+    public MimeType[] getSupportedContentTypes() {
         return CONTENT_TYPES;
     }
 

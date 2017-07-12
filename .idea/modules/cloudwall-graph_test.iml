@@ -12,6 +12,7 @@
     <orderEntry type="module" module-name="cloudwall-graph_main" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:22.0" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" name="Gradle: org.javafp:parsecj:0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.jooq:jool:0.9.12" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
