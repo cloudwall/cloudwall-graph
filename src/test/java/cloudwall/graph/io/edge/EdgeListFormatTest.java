@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package cloudwall.graph.io.text;
+package cloudwall.graph.io.edge;
 
 import cloudwall.graph.Graph;
 import cloudwall.graph.HeavyweightDirectedEdge;
@@ -30,10 +30,10 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-public class TextFormatTest {
+public class EdgeListFormatTest {
     @Test
     public void loadEuEmailCoreGraph() throws Exception {
-        TextFormat format = new TextFormat();
+        EdgeListFormat format = new EdgeListFormat();
 
         URL resource = getClass().getResource("email-Eu-core.txt");
         DataSource graphIn = new URLDataSource(resource);
@@ -47,7 +47,7 @@ public class TextFormatTest {
     // from http://algs4.cs.princeton.edu/42digraph/
     @Test
     public void loadTinyDirectedGraph() throws Exception {
-        TextFormat format = new TextFormat();
+        EdgeListFormat format = new EdgeListFormat();
         format.setSkipLines(2);
 
         URL resource = getClass().getResource("tinyDG.txt");
@@ -63,7 +63,7 @@ public class TextFormatTest {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void loadTinyDAG() throws Exception {
-        TextFormat format = new TextFormat();
+        EdgeListFormat format = new EdgeListFormat();
         format.setSkipLines(2);
 
         URL resource = getClass().getResource("tinyDAG.txt");

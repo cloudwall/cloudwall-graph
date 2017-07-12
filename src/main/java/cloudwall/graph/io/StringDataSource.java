@@ -8,7 +8,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 /**
- * Helper DataSource that reads and writes streams with text in a particular character set.
+ * Helper DataSource that reads and writes streams with edge in a particular character set.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
@@ -19,7 +19,7 @@ public class StringDataSource implements DataSource {
     private final Charset charset;
 
     public StringDataSource() {
-        this("<anonymous>", "text/plain", Charset.defaultCharset());
+        this("<anonymous>", "edge/plain", Charset.defaultCharset());
     }
 
     @SuppressWarnings("WeakerAccess")

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package cloudwall.graph.io.text;
+package cloudwall.graph.io.edge;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
@@ -28,18 +28,19 @@ import java.util.function.Consumer;
 
 /**
  * Format used by the Stanford Network Analysis Project (SNAP), a large collection of graph data online. All their files
- * are simple text files with lists of edges, and comments with a # prefix at the top. It is very similar to TGF, the
+ * are simple edge files with lists of edges, and comments with a # prefix at the top. It is very similar to TGF, the
  * Trivial Graph Format, which this library also supports.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  * @see <a href="https://snap.stanford.edu/index.html">SNAP homepage</a>
- * @see cloudwall.graph.io.trivial.TrivialGraphFormat
+ * @see TrivialGraphFormat
  */
-public class TextFormat implements GraphFormat<EdgeListModel> {
+public class EdgeListFormat implements GraphFormat<EdgeListModel> {
     private static final MimeType[] CONTENT_TYPES;
+
     static {
         try {
-            CONTENT_TYPES = new MimeType[] { new MimeType("text/plain") };
+            CONTENT_TYPES = new MimeType[]{new MimeType("text/plain")};
         } catch (MimeTypeParseException e) {
             throw new RuntimeException(e);
         }
@@ -55,7 +56,6 @@ public class TextFormat implements GraphFormat<EdgeListModel> {
     @Override
     public void read(DataSource dataIn, Consumer<EdgeListModel> modelConsumer) throws GraphFormatException, IOException {
         EdgeListModel model = new EdgeListModel();
-
         try (LineNumberReader r = new LineNumberReader(new InputStreamReader(dataIn.getInputStream()))) {
             for (int i = 0; i < skipLines; i++) {
                 // some formats have # nodes / edges as first two lines
@@ -68,17 +68,7 @@ public class TextFormat implements GraphFormat<EdgeListModel> {
                 if (line.isEmpty() || line.startsWith("#")) {
                     continue;
                 }
-                String[] lineParts = line.split("\\s+");
-                if (lineParts.length != 2) {
-                    throw new IOException("invalid line at line # " + r.getLineNumber() + ": " + line);
-                }
-                try {
-                    long vertex0 = Long.parseLong(lineParts[0]);
-                    long vertex1 = Long.parseLong(lineParts[1]);
-                    model.addEdge(vertex0, vertex1);
-                } catch (NumberFormatException e) {
-                    throw new IOException("invalid node ID at line # " + r.getLineNumber() + ": " + line);
-                }
+                model.parseAndAddEdge(line, r.getLineNumber());
             }
         }
 
@@ -90,7 +80,8 @@ public class TextFormat implements GraphFormat<EdgeListModel> {
         model.write(dataOut);
     }
 
-    public void setSkipLines(int skipLines) {
+    @SuppressWarnings("SameParameterValue")
+    void setSkipLines(int skipLines) {
         this.skipLines = skipLines;
     }
 }

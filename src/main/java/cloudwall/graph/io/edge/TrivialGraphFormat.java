@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package cloudwall.graph.io.trivial;
+package cloudwall.graph.io.edge;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
@@ -22,6 +22,8 @@ import javax.activation.DataSource;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.function.Consumer;
 
 /**
@@ -47,11 +49,33 @@ public class TrivialGraphFormat implements GraphFormat<TrivialGraphModel> {
 
     @Override
     public void read(DataSource dataIn, Consumer<TrivialGraphModel> modelConsumer) throws GraphFormatException, IOException {
+        TrivialGraphModel model = new TrivialGraphModel();
 
+        try (LineNumberReader r = new LineNumberReader(new InputStreamReader(dataIn.getInputStream()))) {
+            boolean nodesDone = false;
+            String line;
+            while ((line = r.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                } else if (line.equals("#")) {
+                    nodesDone = true;
+                    continue;
+                }
+                int lineNumber = r.getLineNumber();
+                if (nodesDone) {
+                    model.parseAndAddEdge(line, lineNumber);
+                } else {
+                    model.parseAndAddVertex(line, lineNumber);
+                }
+            }
+        }
+
+        modelConsumer.accept(model);
     }
 
     @Override
-    public void write(DataSource dataOut, TrivialGraphModel model) {
-
+    public void write(DataSource dataOut, TrivialGraphModel model) throws IOException {
+        model.write(dataOut);
     }
 }
