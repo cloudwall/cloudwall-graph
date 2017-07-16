@@ -29,6 +29,24 @@ import static org.javafp.parsecj.Text.*;
 
 @SuppressWarnings("WeakerAccess")
 class TulipParser {
+    // tulip ::= tulip-full | tulip-light
+
+    // tulip-light ::= nodes-decl edges-decl* clusters-decl* property-decl*
+
+    // tulip-full ::= header date-attr? author-attr? comments-attr? nodes-decl edges-decl* clusters-decl* property-decl* ')'
+
+    // header ::= '(' 'tlp' quoted-string
+
+    // date-attr ::= '(' 'date' quoted-string ')'
+
+    // author-attr ::= '(' 'author' quoted-string ')'
+
+    // comments-attr ::= '(' 'comments' quoted-string ')'
+
+    // nodes-decl ::= '(' 'nodes' node-id+ ')'
+
+    // edges-decl ::= '(' 'edge' edge-id node-id node-id ')'
+
     // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? applied-properties* ')'
     static Parser<Character, Property> propertyParser() {
         return open()
@@ -63,6 +81,10 @@ class TulipParser {
                         )
                 );
     }
+
+    // displaying-decl ::= '(' 'displaying' display-property* ')'
+
+    
 
     // property-type ::= 'bool' | 'double' | 'layout' | 'int' | 'size' | 'string'
     private static Parser<Character, PropertyType> propertyType() {
