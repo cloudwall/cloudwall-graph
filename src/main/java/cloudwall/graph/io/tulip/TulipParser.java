@@ -29,7 +29,7 @@ import static org.javafp.parsecj.Text.*;
 
 @SuppressWarnings("WeakerAccess")
 class TulipParser {
-    // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? property-bindings* ')'
+    // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? applied-properties* ')'
     static Parser<Character, Property> propertyParser() {
         return open()
                 .then(keyword("property")
@@ -88,7 +88,7 @@ class TulipParser {
                 );
     }
 
-    // edge-property-decl ::= '(' 'node' edge-id quoted-string ')'
+    // applied-properties ::= '(' ('node' | 'edge') id quoted-string ')'
     private static Parser<Character, IList<Tuple3<String, Integer, String>>> appliedProperties() {
         return many(
                 open()
