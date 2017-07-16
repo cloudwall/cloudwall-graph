@@ -21,7 +21,7 @@ package cloudwall.graph.io;
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
 public class GraphFormatException extends Exception {
-    public GraphFormatException(String message) {
-        super(message);
+    public GraphFormatException(String message, Exception cause) {
+        super(message, cause);
     }
 }

@@ -15,6 +15,10 @@
  */
 package cloudwall.graph.io.tulip;
 
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Declared attribute in the Tulip file format.
  *
@@ -22,4 +26,62 @@ package cloudwall.graph.io.tulip;
  * @see TulipFormat
  */
 public class Property {
+    private final int clusterId;
+    private final PropertyType propertyType;
+    private final String name;
+
+    private Object nodeDefaultValue;
+    private Object edgeDefaultValue;
+    private Map<Integer, Object> nodeValues = new HashMap<>();
+    private Map<Integer, Object> edgeValues = new HashMap<>();
+
+    public Property(int clusterId, @Nonnull PropertyType propertyType, @Nonnull String name) {
+        this.clusterId = clusterId;
+        this.propertyType = propertyType;
+        this.name = name;
+    }
+
+    public int getClusterId() {
+        return clusterId;
+    }
+
+    public PropertyType getPropertyType() {
+        return propertyType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Object getNodeDefaultValue() {
+        return nodeDefaultValue;
+    }
+
+    public void setNodeDefaultValue(Object nodeDefaultValue) {
+        this.nodeDefaultValue = nodeDefaultValue;
+    }
+
+    public Object getEdgeDefaultValue() {
+        return edgeDefaultValue;
+    }
+
+    public void setEdgeDefaultValue(Object edgeDefaultValue) {
+        this.edgeDefaultValue = edgeDefaultValue;
+    }
+
+    public Map<Integer, Object> getNodeValues() {
+        return nodeValues;
+    }
+
+    public void setNodeValue(int nodeId, @Nonnull Object value) {
+        this.nodeValues.put(nodeId, value);
+    }
+
+    public Map<Integer, Object> getEdgeValues() {
+        return edgeValues;
+    }
+
+    public void setEdgeValue(int edgeId, @Nonnull Object value) {
+        this.edgeValues.put(edgeId, value);
+    }
 }

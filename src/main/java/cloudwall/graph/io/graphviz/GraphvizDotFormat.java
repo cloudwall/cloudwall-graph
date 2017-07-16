@@ -26,6 +26,8 @@ import javax.activation.MimeTypeParseException;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import static cloudwall.graph.io.Parsers.keyword;
+import static cloudwall.graph.io.Parsers.token;
 import static org.javafp.parsecj.Combinators.retn;
 import static org.javafp.parsecj.Text.string;
 import static org.javafp.parsecj.Text.wspaces;
@@ -45,14 +47,6 @@ public class GraphvizDotFormat implements GraphFormat<GraphvizDotModel> {
         } catch (MimeTypeParseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static <T> Parser<Character, T> token(Parser<Character, T> p) {
-        return p.bind(x -> wspaces.then(retn(x)));
-    }
-
-    private static Parser<Character, String> keyword(String name) {
-        return token(string(name));
     }
 
     private static final Parser<Character, String> graphToken = keyword("graph");

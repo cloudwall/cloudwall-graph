@@ -22,4 +22,44 @@ package cloudwall.graph.io.tulip;
  * @see TulipFormat
  */
 public class Edge {
+    private final int id;
+    private final Node node0;
+    private final Node node1;
+
+    public Edge(int id, Node node0, Node node1) {
+        this.id = id;
+        this.node0 = node0;
+        this.node1 = node1;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Node getNode0() {
+        return node0;
+    }
+
+    public Node getNode1() {
+        return node1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Edge edge = (Edge) o;
+
+        return id == edge.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    public String toString() {
+        return "(edge " + id + " " + node0.getId() + " " + node1.getId() + ")";
+    }
 }
