@@ -29,6 +29,7 @@ public enum PropertyType {
     BOOLEAN("bool"),
     COLOR("color"),
     DOUBLE("double"),
+    FLOAT("float"),
     LAYOUT("layout"),
     INT("int"),
     UINT("uint"),
