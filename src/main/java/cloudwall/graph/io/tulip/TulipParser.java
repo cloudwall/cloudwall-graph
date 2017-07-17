@@ -90,7 +90,7 @@ class TulipParser {
 
     // displaying-decl ::= '(' 'displaying' display-property* ')'
 
-    // display-property ::= '(' property-type quoted-string | bool-value | double | integer
+    // display-property ::= '(' property-type quoted-string | bool-value | double | integer ')'
 
     // property-type ::= 'bool' | 'double' | 'layout' | 'int' | 'size' | 'string'
     private static Parser<Character, PropertyType> propertyType() {
