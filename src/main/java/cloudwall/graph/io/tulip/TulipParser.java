@@ -88,9 +88,15 @@ class TulipParser {
                 );
     }
 
-    // displaying-decl ::= '(' 'displaying' display-property* ')'
+    // attributes-decl ::= '(' 'attributes' attribute-decl* ')'
 
-    // display-property ::= '(' property-type quoted-string | bool-value | double | integer ')'
+    // displaying-decl ::= '(' 'displaying' attribute-decl* ')'
+    
+    // controller-decl ::= '(' 'controller' data-set* attribute-decl* ')'
+
+    // data-set ::= '(' 'DataSet' quoted-string ')'
+
+    // attribute-decl ::= '(' property-type quoted-string | bool-value | double | integer ')'
 
     // property-type ::= 'bool' | 'double' | 'layout' | 'int' | 'size' | 'string'
     private static Parser<Character, PropertyType> propertyType() {
