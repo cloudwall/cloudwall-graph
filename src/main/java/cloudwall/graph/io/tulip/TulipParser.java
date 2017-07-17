@@ -47,6 +47,12 @@ class TulipParser {
 
     // edges-decl ::= '(' 'edge' edge-id node-id node-id ')'
 
+    // clusters-decl ::= '(' 'cluster' cluster-id node-list edge-list ')'
+
+    // node-list ::= '(' 'nodes' node-id+ ')'
+
+    // edge-list ::= '(' 'edges' edge-id+ ')'
+
     // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? applied-properties* ')'
     static Parser<Character, Property> propertyParser() {
         return open()
@@ -84,7 +90,7 @@ class TulipParser {
 
     // displaying-decl ::= '(' 'displaying' display-property* ')'
 
-    
+    // display-property ::= '(' property-type quoted-string | bool-value | double | integer
 
     // property-type ::= 'bool' | 'double' | 'layout' | 'int' | 'size' | 'string'
     private static Parser<Character, PropertyType> propertyType() {

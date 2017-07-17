@@ -31,8 +31,10 @@ public enum PropertyType {
     DOUBLE("double"),
     LAYOUT("layout"),
     INT("int"),
+    UINT("uint"),
     SIZE("size"),
-    STRING("string");
+    STRING("string"),
+    COORDINATES("coord");
 
     private static Map<String,PropertyType> TYPE_MAP = new HashMap<>();
     static {
