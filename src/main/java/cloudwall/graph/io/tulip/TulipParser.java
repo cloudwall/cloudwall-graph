@@ -17,9 +17,12 @@
 package cloudwall.graph.io.tulip;
 
 import org.javafp.data.IList;
+import org.javafp.data.Unit;
 import org.javafp.parsecj.Parser;
 import org.jooq.lambda.tuple.Tuple2;
 import org.jooq.lambda.tuple.Tuple3;
+
+import java.time.LocalDate;
 
 import static cloudwall.graph.io.Parsers.jstring;
 import static cloudwall.graph.io.Parsers.keyword;
@@ -31,19 +34,59 @@ import static org.javafp.parsecj.Text.*;
 class TulipParser {
     // tulip ::= tulip-full | tulip-light
 
-    // tulip-light ::= nodes-decl edges-decl* clusters-decl* property-decl*
+    // tulip-light ::= nodes-decl edges-decl* clusters-decl* property-decl* attribute-decl* displaying-decl*
 
-    // tulip-full ::= header date-attr? author-attr? comments-attr? nodes-decl edges-decl* clusters-decl* property-decl* ')'
+    // tulip-full ::= header nodes-decl edges-decl* clusters-decl* property-decl* ')'
 
-    // header ::= '(' 'tlp' quoted-string
+    // header ::= '(' 'tlp' quoted-string date-attr? author-attr? comments-attr?
+    private static Parser<Character, TulipModel> tulipHeader() {
+        return openDecl("tlp")
+                .bind(decl -> jstring
+                        .bind(version -> option(dateAttribute(), null)
+                                .bind(date -> option(authorAttribute(), null)
+                                        .bind(author -> option(commentsAttribute(), null)
+                                                .bind(comments -> {
+                                                            TulipModel model = new TulipModel();
+                                                            return retn(model);
+                                                        }
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
 
     // date-attr ::= '(' 'date' quoted-string ')'
+    private static Parser<Character, LocalDate> dateAttribute() {
+        return openDecl("date")
+                .bind(decl -> jstring
+                        .bind(value -> retn(LocalDate.parse(value))
+                        )
+                );
+    }
 
     // author-attr ::= '(' 'author' quoted-string ')'
+    @SuppressWarnings("Convert2MethodRef")
+    private static Parser<Character, String> authorAttribute() {
+        return openDecl("author")
+                .bind(decl -> jstring
+                        .bind(value -> retn(value)));
+    }
 
     // comments-attr ::= '(' 'comments' quoted-string ')'
+    @SuppressWarnings("Convert2MethodRef")
+    private static Parser<Character, String> commentsAttribute() {
+        return openDecl("comments")
+                .bind(decl -> jstring
+                        .bind(value -> retn(value))
+                );
+    }
 
     // nodes-decl ::= '(' 'nodes' node-id+ ')'
+    @SuppressWarnings("Convert2MethodRef")
+    private static Parser<Character, IList<Integer>> nodes() {
+        return openDecl("nodes").then(many1(intr).bind(value -> retn(value)));
+    }
 
     // edges-decl ::= '(' 'edge' edge-id node-id node-id ')'
 
@@ -89,14 +132,65 @@ class TulipParser {
     }
 
     // attributes-decl ::= '(' 'attributes' attribute-decl* ')'
+    private static Parser<Character, Unit> attributesDeclaration() {
+        return open()
+                .then(keyword("attributes")
+                        .bind(attributes -> many(attributeDeclaration())
+                                .bind(attr -> closeAndSkipAll()
+                                )
+                        )
+                );
+    }
 
     // displaying-decl ::= '(' 'displaying' attribute-decl* ')'
-    
+    private static Parser<Character, Unit> displayingDeclaration() {
+        return open()
+                .then(keyword("displaying"))
+                .then(many(attributeDeclaration()))
+                .then(closeAndSkipAll());
+    }
+
     // controller-decl ::= '(' 'controller' data-set* attribute-decl* ')'
+    private static Parser<Character, Unit> controllerDeclaration() {
+        return openDecl("controller")
+                .then(many(dataSet()))
+                .then(many(attributeDeclaration()))
+                .then(closeAndSkipAll());
+    }
 
     // data-set ::= '(' 'DataSet' quoted-string ')'
+    private static Parser<Character, Unit> dataSet() {
+        return open()
+                .then(keyword("DataSet")
+                        .bind(dataSet -> jstring
+                                .bind(name -> closeAndSkipAll()
+                                )
+                        )
+                );
+    }
 
     // attribute-decl ::= '(' property-type quoted-string | bool-value | double | integer ')'
+    private static Parser<Character, Unit> attributeDeclaration() {
+        return open()
+                .then(propertyType()
+                        .bind(type -> jstring
+                                .bind(attribName -> attributeValues()
+                                        .bind(attribValue -> closeAndSkipAll()
+                                        )
+                                )
+                        )
+                );
+    }
+
+    private static Parser<Character, Unit> attributeValues() {
+        IList<Parser<Character, Unit>> valueParsers = IList.of();
+        valueParsers = valueParsers.add(intr.bind(value -> retn(Unit.unit)));
+        valueParsers = valueParsers.add(dble.bind(value -> retn(Unit.unit)));
+        valueParsers = valueParsers.add(jstring.bind(value -> retn(Unit.unit)));
+        valueParsers = valueParsers.add(keyword("true").bind(value -> retn(Unit.unit)));
+        valueParsers = valueParsers.add(keyword("false").bind(value -> retn(Unit.unit)));
+        return choice(valueParsers);
+    }
 
     // property-type ::= 'bool' | 'double' | 'layout' | 'int' | 'size' | 'string'
     private static Parser<Character, PropertyType> propertyType() {
@@ -143,7 +237,16 @@ class TulipParser {
         return token(chr('('));
     }
 
+    private static Parser<Character, String> openDecl(String name) {
+        return open().then(keyword(name));
+    }
+
     private static Parser<Character, Character> close() {
         return token(chr(')'));
+    }
+
+    // for elements we want to check for well-formedness but not consume, just finish by returning Unit
+    private static Parser<Character, Unit> closeAndSkipAll() {
+        return close().bind(close -> retn(Unit.unit));
     }
 }
