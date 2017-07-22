@@ -82,9 +82,9 @@ public class TulipFormat implements GraphFormat<TulipModel> {
             pw.write("(edge ");
             pw.write(e.getId());
             pw.write(" ");
-            pw.write(e.getNode0().getId());
+            pw.write(e.getNode0());
             pw.write(" ");
-            pw.write(e.getNode1().getId());
+            pw.write(e.getNode1());
             pw.write(")\n");
         });
     }

@@ -33,10 +33,26 @@ import static org.javafp.parsecj.Text.*;
 @SuppressWarnings("WeakerAccess")
 class TulipParser {
     // tulip ::= tulip-full | tulip-light
+    private Parser<Character, TulipModel> newInstance() {
+        return or(tulipLight(), tulipFull());
+    }
 
     // tulip-light ::= nodes-decl edges-decl* clusters-decl* property-decl* attribute-decl* displaying-decl*
+    private static Parser<Character, TulipModel> tulipLight() {
+        return null;
+    }
 
-    // tulip-full ::= header nodes-decl edges-decl* clusters-decl* property-decl* ')'
+    // tulip-full ::= header nodes-decl edge-decl* clusters-decl* property-decl* attribute-decl* displaying-decl* ')'
+    private static Parser<Character, TulipModel> tulipFull() {
+        return tulipHeader()
+                .bind(model -> nodes()
+                        .bind(nodes -> many(edge())
+                                        .bind(edges -> close()
+                                                .bind(close -> retn(model))
+                                        )
+                        )
+                );
+    }
 
     // header ::= '(' 'tlp' quoted-string date-attr? author-attr? comments-attr?
     private static Parser<Character, TulipModel> tulipHeader() {
@@ -47,6 +63,9 @@ class TulipParser {
                                         .bind(author -> option(commentsAttribute(), null)
                                                 .bind(comments -> {
                                                             TulipModel model = new TulipModel();
+                                                            model.setDate(date);
+                                                            model.setAuthor(author);
+                                                            model.setComments(comments);
                                                             return retn(model);
                                                         }
                                                 )
@@ -84,15 +103,29 @@ class TulipParser {
 
     // nodes-decl ::= '(' 'nodes' node-id+ ')'
     @SuppressWarnings("Convert2MethodRef")
-    private static Parser<Character, IList<Integer>> nodes() {
-        return openDecl("nodes").then(many1(intr).bind(value -> retn(value)));
+    private static Parser<Character, IList<Node>> nodes() {
+        return openDecl("nodes").then(many1(intr).bind(value -> retn(value.map(id -> new Node(id)))));
     }
 
     // edges-decl ::= '(' 'edge' edge-id node-id node-id ')'
+    private static Parser<Character, Edge> edge() {
+        return openDecl("edge").then(intr
+                .bind(edgeId -> intr
+                        .bind(node0 -> intr
+                                .bind(node1 -> close()
+                                        .bind(close -> retn(new Edge(edgeId, node0, node1))
+                                        )
+                                )
+                        )
+                )
+        );
+    }
 
     // clusters-decl ::= '(' 'cluster' cluster-id node-list edge-list ')'
 
+
     // node-list ::= '(' 'nodes' node-id+ ')'
+
 
     // edge-list ::= '(' 'edges' edge-id+ ')'
 
