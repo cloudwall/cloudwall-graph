@@ -20,6 +20,7 @@ import cloudwall.graph.GraphModel;
 import javax.annotation.Nonnull;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Top level model for the Tulip file format.
@@ -36,7 +37,9 @@ public class TulipModel implements GraphModel {
     private String author;
     private String comments;
 
-    private Cluster root = new Cluster();
+    private Collection<Node> nodes = new ArrayList<>();
+    private Collection<Edge> edges = new ArrayList<>();
+    private Collection<Cluster> clusters = new ArrayList<>();
     private Collection<Property> properties = new ArrayList<>();
 
 
@@ -76,8 +79,32 @@ public class TulipModel implements GraphModel {
         this.comments = comments;
     }
 
-    public Cluster getRootCluster() {
-        return root;
+    public Collection<Node> getNodes() {
+        return nodes;
+    }
+
+    public Collection<Integer> getNodeIds() {
+        return nodes.stream().map(Node::getId).collect(Collectors.toList());
+    }
+
+    public void addNode(@Nonnull Node node) {
+        nodes.add(node);
+    }
+
+    public Collection<Edge> getEdges() {
+        return edges;
+    }
+
+    public void addEdge(@Nonnull Edge edge) {
+        edges.add(edge);
+    }
+
+    public Collection<Cluster> getClusters() {
+        return clusters;
+    }
+
+    public void addCluster(@Nonnull Cluster cluster) {
+        clusters.add(cluster);
     }
 
     public Collection<Property> getProperties() {

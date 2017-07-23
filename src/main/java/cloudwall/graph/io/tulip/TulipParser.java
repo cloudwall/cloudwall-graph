@@ -37,21 +37,14 @@ class TulipParser {
         return or(tulipLight(), tulipFull());
     }
 
-    // tulip-light ::= nodes-decl edges-decl* clusters-decl* property-decl* attribute-decl* displaying-decl*
+    // tulip-light ::= nodes-decl edge-decl* cluster-decl* property-decl* attributes-decl? displaying-decl?
     private static Parser<Character, TulipModel> tulipLight() {
-        return null;
+        return tulipRootCluster(new TulipModel());
     }
 
-    // tulip-full ::= header nodes-decl edge-decl* clusters-decl* property-decl* attribute-decl* displaying-decl* ')'
+    // tulip-full ::= header nodes-decl edge-decl* clusters-decl* property-decl* attributes-decl? displaying-decl? ')'
     private static Parser<Character, TulipModel> tulipFull() {
-        return tulipHeader()
-                .bind(model -> nodes()
-                        .bind(nodes -> many(edge())
-                                        .bind(edges -> close()
-                                                .bind(close -> retn(model))
-                                        )
-                        )
-                );
+        return tulipHeader().bind(model -> tulipRootCluster(model).bind(close -> retn(model)));
     }
 
     // header ::= '(' 'tlp' quoted-string date-attr? author-attr? comments-attr?
@@ -68,6 +61,31 @@ class TulipParser {
                                                             model.setComments(comments);
                                                             return retn(model);
                                                         }
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    private static Parser<Character, TulipModel> tulipRootCluster(TulipModel model) {
+        return nodes()
+                .bind(nodes -> many(edge())
+                        .bind(edges -> many(propertyParser())
+                                .bind(properties -> many(cluster())
+                                        .bind(clusters -> optional(attributesDeclaration())
+                                                .bind(controller -> optional(controllerDeclaration())
+                                                        .bind(attributes -> optional(displayingDeclaration())
+                                                                .bind(displaying -> close()
+                                                                        .bind(close -> {
+                                                                            nodes.forEach(model::addNode);
+                                                                            edges.forEach(model::addEdge);
+                                                                            clusters.forEach(model::addCluster);
+                                                                            properties.forEach(model::addProperty);
+                                                                            return retn(model);
+                                                                        })
+                                                                )
+                                                        )
                                                 )
                                         )
                                 )
@@ -121,40 +139,65 @@ class TulipParser {
         );
     }
 
-    // clusters-decl ::= '(' 'cluster' cluster-id node-list edge-list ')'
-
+    // cluster-decl ::= '(' 'cluster' cluster-id quoted-string node-list edge-list cluster* ')'
+    private static Parser<Character, Cluster> cluster() {
+        return openDecl("cluster").then(intr
+                .bind(clusterId -> jstring
+                        .bind(clusterName -> clusterNodeList()
+                                .bind(clusterNodes -> clusterEdgeList()
+                                        .bind(clusterEdges -> many(cluster())
+                                                .bind(clusters -> close()
+                                                        .bind(close -> {
+                                                                    Cluster cluster = new Cluster(clusterId, clusterName);
+                                                                    clusterNodes.forEach(cluster::addNode);
+                                                                    clusterEdges.forEach(cluster::addEdge);
+                                                                    clusters.forEach(cluster::addCluster);
+                                                                    return retn(cluster);
+                                                                }
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+        );
+    }
 
     // node-list ::= '(' 'nodes' node-id+ ')'
-
+    private static Parser<Character, IList<Integer>> clusterNodeList() {
+        return openDecl("nodes").then(many1(intr).bind(nodeIds -> close().bind(close -> retn(nodeIds))));
+    }
 
     // edge-list ::= '(' 'edges' edge-id+ ')'
+    private static Parser<Character, IList<Integer>> clusterEdgeList() {
+        return openDecl("edges").then(many1(intr).bind(edgeIds -> close().bind(close -> retn(edgeIds))));
+    }
+
 
     // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? applied-properties* ')'
     static Parser<Character, Property> propertyParser() {
-        return open()
-                .then(keyword("property")
-                        .then(intr
-                                .bind(clusterId -> propertyType()
-                                        .bind(type -> jstring
-                                                .bind(name -> propertyDefault()
-                                                        .bind(defaults -> appliedProperties()
-                                                                .bind(properties -> close()
-                                                                        .bind(close -> {
-                                                                                    Property prop = new Property(clusterId, type, name);
-                                                                                    prop.setNodeDefaultValue(defaults.v1());
-                                                                                    prop.setEdgeDefaultValue(defaults.v2());
+        return openDecl("property")
+                .then(intr
+                        .bind(clusterId -> propertyType()
+                                .bind(type -> jstring
+                                        .bind(name -> propertyDefault()
+                                                .bind(defaults -> appliedProperties()
+                                                        .bind(properties -> close()
+                                                                .bind(close -> {
+                                                                            Property prop = new Property(clusterId, type, name);
+                                                                            prop.setNodeDefaultValue(defaults.v1());
+                                                                            prop.setEdgeDefaultValue(defaults.v2());
 
-                                                                                    properties.forEach(p -> {
-                                                                                        if (p.v1().equals("node")) {
-                                                                                            prop.setNodeValue(p.v2(), p.v3());
-                                                                                        } else {
-                                                                                            prop.setEdgeValue(p.v2(), p.v3());
-                                                                                        }
-                                                                                    });
-
-                                                                                    return retn(prop);
+                                                                            properties.forEach(p -> {
+                                                                                if (p.v1().equals("node")) {
+                                                                                    prop.setNodeValue(p.v2(), p.v3());
+                                                                                } else {
+                                                                                    prop.setEdgeValue(p.v2(), p.v3());
                                                                                 }
-                                                                        )
+                                                                            });
+
+                                                                            return retn(prop);
+                                                                        }
                                                                 )
                                                         )
                                                 )
@@ -166,19 +209,16 @@ class TulipParser {
 
     // attributes-decl ::= '(' 'attributes' attribute-decl* ')'
     private static Parser<Character, Unit> attributesDeclaration() {
-        return open()
-                .then(keyword("attributes")
-                        .bind(attributes -> many(attributeDeclaration())
-                                .bind(attr -> closeAndSkipAll()
-                                )
+        return openDecl("attributes")
+                .bind(attributes -> many(attributeDeclaration())
+                        .bind(attr -> closeAndSkipAll()
                         )
                 );
     }
 
     // displaying-decl ::= '(' 'displaying' attribute-decl* ')'
     private static Parser<Character, Unit> displayingDeclaration() {
-        return open()
-                .then(keyword("displaying"))
+        return openDecl("displaying")
                 .then(many(attributeDeclaration()))
                 .then(closeAndSkipAll());
     }
@@ -193,11 +233,9 @@ class TulipParser {
 
     // data-set ::= '(' 'DataSet' quoted-string ')'
     private static Parser<Character, Unit> dataSet() {
-        return open()
-                .then(keyword("DataSet")
-                        .bind(dataSet -> jstring
-                                .bind(name -> closeAndSkipAll()
-                                )
+        return openDecl("DataSet")
+                .bind(dataSet -> jstring
+                        .bind(name -> closeAndSkipAll()
                         )
                 );
     }
@@ -236,13 +274,11 @@ class TulipParser {
 
     // property-default-decl ::= '(' 'default' quoted-string quoted-string ')'
     private static Parser<Character, Tuple2<String, String>> propertyDefault() {
-        return open()
-                .then(keyword("default")
-                        .then(jstring
-                                .bind(nodeDefaultValue -> jstring
-                                        .bind(edgeDefaultValue -> close()
-                                                .bind(close -> retn(new Tuple2<>(nodeDefaultValue, edgeDefaultValue))
-                                                )
+        return openDecl("default")
+                .then(jstring
+                        .bind(nodeDefaultValue -> jstring
+                                .bind(edgeDefaultValue -> close()
+                                        .bind(close -> retn(new Tuple2<>(nodeDefaultValue, edgeDefaultValue))
                                         )
                                 )
                         )

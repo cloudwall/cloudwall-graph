@@ -28,9 +28,9 @@ public class Cluster {
     private final int id;
     private final String name;
 
-    private Map<Integer, Node> nodes = new LinkedHashMap<>();
-    private Map<Integer, Edge> edges = new LinkedHashMap<>();
-    private Map<Integer, Cluster> clusters = new LinkedHashMap<>();
+    private List<Integer> nodes = new ArrayList<>();
+    private List<Integer> edges = new ArrayList<>();
+    private List<Cluster> clusters = new ArrayList<>();
 
     public Cluster() {
         this(0, "root");
@@ -49,28 +49,28 @@ public class Cluster {
         return name;
     }
 
-    public Collection<Node> getNodes() {
-        return nodes.values();
+    public Collection<Integer> getNodes() {
+        return nodes;
     }
 
-    public void addNode(@Nonnull Node node) {
-        nodes.put(node.getId(), node);
+    public void addNode(@Nonnull Integer nodeId) {
+        nodes.add(nodeId);
     }
 
-    public Collection<Edge> getEdges() {
-        return edges.values();
+    public Collection<Integer> getEdges() {
+        return edges;
     }
 
-    public void addEdge(@Nonnull Edge edge) {
-        edges.put(edge.getId(), edge);
+    public void addEdge(@Nonnull Integer edgeId) {
+        edges.add(edgeId);
     }
 
     public Collection<Cluster> getClusters() {
-        return clusters.values();
+        return clusters;
     }
 
     public void addCluster(@Nonnull Cluster cluster) {
-        clusters.put(cluster.getId(), cluster);
+        clusters.add(cluster);
     }
 
 }

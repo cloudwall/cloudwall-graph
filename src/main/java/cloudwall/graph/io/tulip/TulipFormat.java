@@ -56,8 +56,9 @@ public class TulipFormat implements GraphFormat<TulipModel> {
             maybeWriteField(pw, "author", model.getAuthor());
             maybeWriteField(pw, "comments", model.getComments());
 
-            // output graph
-            writeCluster(pw, model.getRootCluster());
+            // output root cluster
+            writeNodes(pw, model.getNodeIds());
+            writeEdges(pw, model.getEdges());
             writeProperties(pw, model.getProperties());
 
             pw.write(")");
@@ -65,16 +66,8 @@ public class TulipFormat implements GraphFormat<TulipModel> {
         }
     }
 
-    private void writeNodes(PrintWriter pw, Collection<Node> nodes) {
-        if (nodes.isEmpty()) {
-            return;
-        }
-        pw.write("(nodes");
-        nodes.forEach(n -> {
-            pw.write(" ");
-            pw.write(n.getId());
-        });
-        pw.write(")\n");
+    private void writeNodes(PrintWriter pw, Collection<Integer> nodes) {
+        writeIdList(pw, "nodes", nodes);
     }
 
     private void writeEdges(PrintWriter pw, Collection<Edge> edges) {
@@ -97,12 +90,25 @@ public class TulipFormat implements GraphFormat<TulipModel> {
             pw.write("\n");
         }
         writeNodes(pw, c.getNodes());
-        writeEdges(pw, c.getEdges());
+        writeIdList(pw, "edges", c.getEdges());
         c.getClusters().forEach(child -> writeCluster(pw, child));
         if (rootCluster) {
             pw.write(")\n");
         }
     }
+
+    private void writeIdList(PrintWriter pw, String type, Collection<Integer> idList) {
+         if (idList.isEmpty()) {
+             return;
+         }
+         pw.write("(");
+         pw.write(type);
+         idList.forEach(n -> {
+             pw.write(" ");
+             pw.write(n);
+         });
+         pw.write(")\n");
+     }
 
     private void writeProperties(PrintWriter pw, Collection<Property> properties) {
         properties.forEach(p -> {
