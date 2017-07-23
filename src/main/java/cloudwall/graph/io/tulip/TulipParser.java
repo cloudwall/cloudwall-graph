@@ -33,7 +33,7 @@ import static org.javafp.parsecj.Text.*;
 @SuppressWarnings("WeakerAccess")
 class TulipParser {
     // tulip ::= tulip-full | tulip-light
-    private Parser<Character, TulipModel> newInstance() {
+    public static Parser<Character, TulipModel> newInstance() {
         return or(tulipLight(), tulipFull());
     }
 
@@ -50,7 +50,7 @@ class TulipParser {
     // header ::= '(' 'tlp' quoted-string date-attr? author-attr? comments-attr?
     private static Parser<Character, TulipModel> tulipHeader() {
         return openDecl("tlp")
-                .bind(decl -> jstring
+                .bind(decl -> quotedString()
                         .bind(version -> option(dateAttribute(), null)
                                 .bind(date -> option(authorAttribute(), null)
                                         .bind(author -> option(commentsAttribute(), null)
@@ -96,7 +96,7 @@ class TulipParser {
     // date-attr ::= '(' 'date' quoted-string ')'
     private static Parser<Character, LocalDate> dateAttribute() {
         return openDecl("date")
-                .bind(decl -> jstring
+                .bind(decl -> quotedString()
                         .bind(value -> retn(LocalDate.parse(value))
                         )
                 );
@@ -106,7 +106,7 @@ class TulipParser {
     @SuppressWarnings("Convert2MethodRef")
     private static Parser<Character, String> authorAttribute() {
         return openDecl("author")
-                .bind(decl -> jstring
+                .bind(decl -> quotedString()
                         .bind(value -> retn(value)));
     }
 
@@ -114,7 +114,7 @@ class TulipParser {
     @SuppressWarnings("Convert2MethodRef")
     private static Parser<Character, String> commentsAttribute() {
         return openDecl("comments")
-                .bind(decl -> jstring
+                .bind(decl -> quotedString()
                         .bind(value -> retn(value))
                 );
     }
@@ -179,7 +179,7 @@ class TulipParser {
         return openDecl("property")
                 .then(intr
                         .bind(clusterId -> propertyType()
-                                .bind(type -> jstring
+                                .bind(type -> quotedString()
                                         .bind(name -> propertyDefault()
                                                 .bind(defaults -> appliedProperties()
                                                         .bind(properties -> close()
@@ -234,7 +234,7 @@ class TulipParser {
     // data-set ::= '(' 'DataSet' quoted-string ')'
     private static Parser<Character, Unit> dataSet() {
         return openDecl("DataSet")
-                .bind(dataSet -> jstring
+                .bind(dataSet -> quotedString()
                         .bind(name -> closeAndSkipAll()
                         )
                 );
@@ -244,7 +244,7 @@ class TulipParser {
     private static Parser<Character, Unit> attributeDeclaration() {
         return open()
                 .then(propertyType()
-                        .bind(type -> jstring
+                        .bind(type -> quotedString()
                                 .bind(attribName -> attributeValues()
                                         .bind(attribValue -> closeAndSkipAll()
                                         )
@@ -275,8 +275,8 @@ class TulipParser {
     // property-default-decl ::= '(' 'default' quoted-string quoted-string ')'
     private static Parser<Character, Tuple2<String, String>> propertyDefault() {
         return openDecl("default")
-                .then(jstring
-                        .bind(nodeDefaultValue -> jstring
+                .then(quotedString()
+                        .bind(nodeDefaultValue -> quotedString()
                                 .bind(edgeDefaultValue -> close()
                                         .bind(close -> retn(new Tuple2<>(nodeDefaultValue, edgeDefaultValue))
                                         )
@@ -291,7 +291,7 @@ class TulipParser {
                 open()
                         .then(or(keyword("node"), keyword("edge"))
                                 .bind(applyType -> intr
-                                        .bind(edgeId -> jstring
+                                        .bind(edgeId -> quotedString()
                                                 .bind(value -> close()
                                                         .bind(close -> retn(new Tuple3<>(applyType, edgeId, value))
                                                         )
@@ -300,6 +300,10 @@ class TulipParser {
                                 )
                         )
         );
+    }
+
+    private static Parser<Character, String> quotedString() {
+        return wspaces.then(jstring);
     }
 
     private static Parser<Character, Character> open() {
