@@ -16,8 +16,14 @@
 
 package cloudwall.graph.io.tulip;
 
+import cloudwall.graph.io.ReaderState;
+import com.google.common.collect.ImmutableList;
 import org.javafp.parsecj.State;
 import org.junit.Test;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -60,8 +66,30 @@ public class TulipParserTest {
         assertEquals("(0.501728,-2.77041,-6.74205e-08)", property.getNodeValues().get(1));
         assertEquals("((-2.33098,5.09903,1.2409e-07))", property.getEdgeValues().get(4));
         assertEquals("((3.94972,2.99467,7.2878e-08))", property.getEdgeValues().get(13));
-
-
     }
+
+    @Test
+    public void parseTestCasesFromTulip() throws Exception {
+        Collection<String> testCases = ImmutableList.of(
+                "filesystem.tlp",
+                "grid1010.tlp",
+                "k5lostingrid5050.tlp",
+                "k33k55.tlp",
+                "k33lostInGrip.tlp",
+                "openmetanode1.tlp",
+                "planar30drawnFPP.tlp",
+                "planar30drawnMM.tlp",
+                "unbiconnected.tlp",
+                "unconnected.tlp"
+        );
+
+        for (String testCase : testCases) {
+            Reader r = new InputStreamReader(getClass().getResourceAsStream(testCase));
+            ReaderState readerState = new ReaderState(r);
+            TulipParser.newInstance().parse(readerState).getResult();
+        }
+    }
+
+
 
 }
