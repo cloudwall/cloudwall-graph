@@ -16,6 +16,7 @@
 
 package cloudwall.graph.io.tulip;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.javafp.data.IList;
 import org.javafp.data.Unit;
 import org.javafp.parsecj.Parser;
@@ -23,6 +24,7 @@ import org.jooq.lambda.tuple.Tuple2;
 import org.jooq.lambda.tuple.Tuple3;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static cloudwall.graph.io.Parsers.jstring;
 import static cloudwall.graph.io.Parsers.keyword;
@@ -38,7 +40,8 @@ class TulipParser {
     }
 
     // tulip-light ::= nodes-decl edge-decl* cluster-decl* property-decl* attributes-decl? displaying-decl?
-    private static Parser<Character, TulipModel> tulipLight() {
+    @VisibleForTesting
+    static Parser<Character, TulipModel> tulipLight() {
         return tulipRootCluster(new TulipModel());
     }
 
@@ -71,20 +74,18 @@ class TulipParser {
     private static Parser<Character, TulipModel> tulipRootCluster(TulipModel model) {
         return nodes()
                 .bind(nodes -> many(edge())
-                        .bind(edges -> many(propertyParser())
+                        .bind(edges -> many(propertyDeclaration())
                                 .bind(properties -> many(cluster())
                                         .bind(clusters -> optional(attributesDeclaration())
                                                 .bind(controller -> optional(controllerDeclaration())
                                                         .bind(attributes -> optional(displayingDeclaration())
-                                                                .bind(displaying -> close()
-                                                                        .bind(close -> {
-                                                                            nodes.forEach(model::addNode);
-                                                                            edges.forEach(model::addEdge);
-                                                                            clusters.forEach(model::addCluster);
-                                                                            properties.forEach(model::addProperty);
-                                                                            return retn(model);
-                                                                        })
-                                                                )
+                                                                .bind(displaying -> {
+                                                                    nodes.forEach(model::addNode);
+                                                                    edges.forEach(model::addEdge);
+                                                                    clusters.forEach(model::addCluster);
+                                                                    properties.forEach(model::addProperty);
+                                                                    return retn(model);
+                                                                })
                                                         )
                                                 )
                                         )
@@ -97,7 +98,9 @@ class TulipParser {
     private static Parser<Character, LocalDate> dateAttribute() {
         return openDecl("date")
                 .bind(decl -> quotedString()
-                        .bind(value -> retn(LocalDate.parse(value))
+                        .bind(value -> close()
+                                .bind(close -> retn(LocalDate.parse(value, DateTimeFormatter.ofPattern("MM-dd-yyyy")))
+                                )
                         )
                 );
     }
@@ -107,7 +110,11 @@ class TulipParser {
     private static Parser<Character, String> authorAttribute() {
         return openDecl("author")
                 .bind(decl -> quotedString()
-                        .bind(value -> retn(value)));
+                        .bind(value -> close()
+                                .bind(close -> retn(value)
+                                )
+                        )
+                );
     }
 
     // comments-attr ::= '(' 'comments' quoted-string ')'
@@ -115,21 +122,29 @@ class TulipParser {
     private static Parser<Character, String> commentsAttribute() {
         return openDecl("comments")
                 .bind(decl -> quotedString()
-                        .bind(value -> retn(value))
+                        .bind(value -> close()
+                                .bind(close -> retn(value)
+                                )
+                        )
                 );
     }
 
     // nodes-decl ::= '(' 'nodes' node-id+ ')'
     @SuppressWarnings("Convert2MethodRef")
-    private static Parser<Character, IList<Node>> nodes() {
-        return openDecl("nodes").then(many1(intr).bind(value -> retn(value.map(id -> new Node(id)))));
+    static Parser<Character, IList<Node>> nodes() {
+        return openDecl("nodes").then(many1(id())
+                .bind(value -> close()
+                        .bind(close -> retn(value.map(id -> new Node(id)))
+                        )
+                )
+        );
     }
 
     // edges-decl ::= '(' 'edge' edge-id node-id node-id ')'
     private static Parser<Character, Edge> edge() {
-        return openDecl("edge").then(intr
-                .bind(edgeId -> intr
-                        .bind(node0 -> intr
+        return openDecl("edge").then(id()
+                .bind(edgeId -> id()
+                        .bind(node0 -> id()
                                 .bind(node1 -> close()
                                         .bind(close -> retn(new Edge(edgeId, node0, node1))
                                         )
@@ -141,7 +156,7 @@ class TulipParser {
 
     // cluster-decl ::= '(' 'cluster' cluster-id quoted-string node-list edge-list cluster* ')'
     private static Parser<Character, Cluster> cluster() {
-        return openDecl("cluster").then(intr
+        return openDecl("cluster").then(id()
                 .bind(clusterId -> jstring
                         .bind(clusterName -> clusterNodeList()
                                 .bind(clusterNodes -> clusterEdgeList()
@@ -165,19 +180,20 @@ class TulipParser {
 
     // node-list ::= '(' 'nodes' node-id+ ')'
     private static Parser<Character, IList<Integer>> clusterNodeList() {
-        return openDecl("nodes").then(many1(intr).bind(nodeIds -> close().bind(close -> retn(nodeIds))));
+        return openDecl("nodes").then(many1(id()).bind(nodeIds -> close().bind(close -> retn(nodeIds))));
     }
 
     // edge-list ::= '(' 'edges' edge-id+ ')'
     private static Parser<Character, IList<Integer>> clusterEdgeList() {
-        return openDecl("edges").then(many1(intr).bind(edgeIds -> close().bind(close -> retn(edgeIds))));
+        return openDecl("edges").then(many1(id()).bind(edgeIds -> close().bind(close -> retn(edgeIds))));
     }
 
 
     // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? applied-properties* ')'
-    static Parser<Character, Property> propertyParser() {
+    @VisibleForTesting
+    static Parser<Character, Property> propertyDeclaration() {
         return openDecl("property")
-                .then(intr
+                .then(id()
                         .bind(clusterId -> propertyType()
                                 .bind(type -> quotedString()
                                         .bind(name -> propertyDefault()
@@ -290,7 +306,7 @@ class TulipParser {
         return many(
                 open()
                         .then(or(keyword("node"), keyword("edge"))
-                                .bind(applyType -> intr
+                                .bind(applyType -> id()
                                         .bind(edgeId -> quotedString()
                                                 .bind(value -> close()
                                                         .bind(close -> retn(new Tuple3<>(applyType, edgeId, value))
@@ -306,12 +322,16 @@ class TulipParser {
         return wspaces.then(jstring);
     }
 
+    private static Parser<Character, Integer> id() {
+        return wspaces.then(intr);
+    }
+
     private static Parser<Character, Character> open() {
         return token(chr('('));
     }
 
-    private static Parser<Character, String> openDecl(String name) {
-        return open().then(keyword(name));
+    private static Parser<Character, Unit> openDecl(String name) {
+        return open().label("(" + name).then(keyword(name)).then(wspaces);
     }
 
     private static Parser<Character, Character> close() {

@@ -16,7 +16,6 @@
 
 package cloudwall.graph.io.tulip;
 
-import cloudwall.graph.io.ReaderState;
 import com.google.common.collect.ImmutableList;
 import org.javafp.parsecj.State;
 import org.junit.Test;
@@ -30,12 +29,27 @@ import static org.junit.Assert.assertTrue;
 
 public class TulipParserTest {
     @Test
+    public void parseNodesAndEdges() throws Exception {
+        String tlp =
+                ";(nodes <node_id> <node_id> ...)\n" +
+                "(nodes 0 1 2 3 4 5 6 7)\n" +
+                ";(edge <edge_id> <source_id> <target_id>)\n" +
+                "(edge 0 6 2)\n" +
+                "(edge 1 2 1)\n" +
+                "(edge 2 1 4)";
+
+        TulipInput in = new TulipInput(tlp);
+        TulipModel model = TulipParser.tulipLight().parse(in.toInput()).getResult();
+        System.out.println(model);
+    }
+
+    @Test
     public void parseGlobalProperty() throws Exception {
         String propertyTxt = "(property  0 double \"viewBorderWidth\"\n" +
                 "(default \"1\" \"0\")\n" +
                 ")";
 
-        Property property = TulipParser.propertyParser().parse(State.of(propertyTxt)).getResult();
+        Property property = TulipParser.propertyDeclaration().parse(State.of(propertyTxt)).getResult();
 
         assertEquals(0, property.getClusterId());
         assertEquals(PropertyType.DOUBLE, property.getPropertyType());
@@ -44,6 +58,24 @@ public class TulipParserTest {
         assertEquals("0", property.getEdgeDefaultValue());
         assertTrue("no node values expected", property.getNodeValues().isEmpty());
         assertTrue("no edge values expected", property.getEdgeValues().isEmpty());
+    }
+
+    @Test
+    public void parsePropertyAppliedToNodesOnly() throws Exception {
+        String propertyTxt = "(property  0 layout \"viewLayout\"\n" +
+                "(default \"(115,81,255)\" \"()\" )\n" +
+                "(node 0 \"(5.91166,-2.81404,-6.84822e-08)\")\n" +
+                "(node 1 \"(0.501728,-2.77041,-6.74205e-08)\")\n" +
+                ")";
+
+        Property property = TulipParser.propertyDeclaration().parse(State.of(propertyTxt)).getResult();
+        assertEquals(0, property.getClusterId());
+        assertEquals(PropertyType.LAYOUT, property.getPropertyType());
+        assertEquals("viewLayout", property.getName());
+        assertEquals("(115,81,255)", property.getNodeDefaultValue());
+        assertEquals("()", property.getEdgeDefaultValue());
+        assertEquals("(5.91166,-2.81404,-6.84822e-08)", property.getNodeValues().get(0));
+        assertEquals("(0.501728,-2.77041,-6.74205e-08)", property.getNodeValues().get(1));
     }
 
     @Test
@@ -56,7 +88,7 @@ public class TulipParserTest {
                 "(edge 13 \"((3.94972,2.99467,7.2878e-08))\")\n" +
                 ")";
 
-        Property property = TulipParser.propertyParser().parse(State.of(propertyTxt)).getResult();
+        Property property = TulipParser.propertyDeclaration().parse(State.of(propertyTxt)).getResult();
         assertEquals(0, property.getClusterId());
         assertEquals(PropertyType.LAYOUT, property.getPropertyType());
         assertEquals("viewLayout", property.getName());
@@ -84,9 +116,10 @@ public class TulipParserTest {
         );
 
         for (String testCase : testCases) {
+            System.out.println(testCase);
             Reader r = new InputStreamReader(getClass().getResourceAsStream(testCase));
-            ReaderState readerState = new ReaderState(r);
-            TulipParser.newInstance().parse(readerState).getResult();
+            TulipInput in = new TulipInput(r);
+            TulipParser.newInstance().parse(in.toInput()).getResult();
         }
     }
 

@@ -42,7 +42,6 @@ public class TulipModel implements GraphModel {
     private Collection<Cluster> clusters = new ArrayList<>();
     private Collection<Property> properties = new ArrayList<>();
 
-
     public TulipModel() {
         this(CURRENT_VERSION);
     }
