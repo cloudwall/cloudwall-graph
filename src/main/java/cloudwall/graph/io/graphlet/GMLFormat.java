@@ -30,7 +30,6 @@ import java.util.function.Consumer;
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  * @see <a href="http://www.fim.uni-passau.de/en/faculty/former-professors/theoretische-informatik/projects/">Graphlet GML homepage</a>
- * @see <a href="http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf">GML: A portable Graph File Format</a>
  */
 public class GMLFormat implements GraphFormat<GMLModel> {
     private static final MimeType[] CONTENT_TYPES;

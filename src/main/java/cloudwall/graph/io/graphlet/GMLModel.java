@@ -17,11 +17,68 @@ package cloudwall.graph.io.graphlet;
 
 import cloudwall.graph.GraphModel;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Implementation of the Graph Modeling Language (GML) used by Graphlet.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  * @see GMLFormat
  */
+@SuppressWarnings("WeakerAccess")
 public class GMLModel implements GraphModel {
+    private List root;
+
+    public GMLModel(List root) {
+        this.root = root;
+    }
+
+    public interface Value {
+        Object getValue();
+    }
+
+    public static class Scalar implements Value {
+        private final Object value;
+
+        public Scalar(Object value) {
+            this.value = value;
+        }
+
+        @Override
+        public Object getValue() {
+            return value;
+        }
+    }
+
+    public static class List implements Value {
+        private Collection<ListEntry> entries = new ArrayList<>();
+
+        @Override
+        public Object getValue() {
+            return entries;
+        }
+
+        public void addEntry(ListEntry entry) {
+            entries.add(entry);
+        }
+    }
+
+    public static class ListEntry {
+        private String key;
+        private Value value;
+
+        public ListEntry(String key, Value value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Value getValue() {
+            return value;
+        }
+    }
 }

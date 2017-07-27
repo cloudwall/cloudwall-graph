@@ -16,7 +16,6 @@
 
 package cloudwall.graph.io.tulip;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.javafp.data.IList;
 import org.javafp.data.Unit;
 import org.javafp.parsecj.Parser;
@@ -35,13 +34,13 @@ import static org.javafp.parsecj.Text.*;
 @SuppressWarnings("WeakerAccess")
 class TulipParser {
     // tulip ::= tulip-full | tulip-light
+    @SuppressWarnings("unchecked")
     public static Parser<Character, TulipModel> newInstance() {
-        return or(tulipLight(), tulipFull());
+        return choice(attempt(tulipFull()), attempt(tulipLight()));
     }
 
     // tulip-light ::= nodes-decl edge-decl* cluster-decl* property-decl* attributes-decl? displaying-decl?
-    @VisibleForTesting
-    static Parser<Character, TulipModel> tulipLight() {
+    private static Parser<Character, TulipModel> tulipLight() {
         return tulipRootCluster(new TulipModel());
     }
 
@@ -54,9 +53,9 @@ class TulipParser {
     private static Parser<Character, TulipModel> tulipHeader() {
         return openDecl("tlp")
                 .bind(decl -> quotedString()
-                        .bind(version -> option(dateAttribute(), null)
-                                .bind(date -> option(authorAttribute(), null)
-                                        .bind(author -> option(commentsAttribute(), null)
+                        .bind(version -> option(attempt(dateAttribute()), null)
+                                .bind(date -> option(attempt(authorAttribute()), null)
+                                        .bind(author -> option(attempt(commentsAttribute()), null)
                                                 .bind(comments -> {
                                                             TulipModel model = new TulipModel();
                                                             model.setDate(date);
@@ -73,11 +72,11 @@ class TulipParser {
 
     private static Parser<Character, TulipModel> tulipRootCluster(TulipModel model) {
         return nodes()
-                .bind(nodes -> many(edge())
-                        .bind(edges -> many(propertyDeclaration())
-                                .bind(properties -> many(cluster())
-                                        .bind(clusters -> optional(attributesDeclaration())
-                                                .bind(controller -> optional(controllerDeclaration())
+                .bind(nodes -> many(attempt(edge()))
+                        .bind(edges -> many(attempt(cluster()))
+                                .bind(clusters -> many(attempt(propertyDeclaration()))
+                                        .bind(properties -> optional(attempt(attributesDeclaration()))
+                                                .bind(controller -> optional(attempt(controllerDeclaration()))
                                                         .bind(attributes -> optional(displayingDeclaration())
                                                                 .bind(displaying -> {
                                                                     nodes.forEach(model::addNode);
@@ -131,13 +130,32 @@ class TulipParser {
 
     // nodes-decl ::= '(' 'nodes' node-id+ ')'
     @SuppressWarnings("Convert2MethodRef")
-    static Parser<Character, IList<Node>> nodes() {
-        return openDecl("nodes").then(many1(id())
+    private static Parser<Character, IList<Node>> nodes() {
+        return openDecl("nodes").then(nodeIds()
                 .bind(value -> close()
                         .bind(close -> retn(value.map(id -> new Node(id)))
                         )
                 )
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Parser<Character, IList<Integer>> nodeIds() {
+        return choice(
+                attempt(nodeIdRange()),
+                attempt(many1(id())
+                )
+        );
+    }
+
+    private static Parser<Character, IList<Integer>> nodeIdRange() {
+        return intr
+                .bind(startRange -> keyword("..")
+                        .bind(op -> intr
+                                .bind(endRange -> retn(IList.of(startRange, endRange))
+                                )
+                        )
+                );
     }
 
     // edges-decl ::= '(' 'edge' edge-id node-id node-id ')'
@@ -188,10 +206,8 @@ class TulipParser {
         return openDecl("edges").then(many1(id()).bind(edgeIds -> close().bind(close -> retn(edgeIds))));
     }
 
-
     // property-decl ::= '(' 'property' cluster-id property-type quoted-string property-default-decl? applied-properties* ')'
-    @VisibleForTesting
-    static Parser<Character, Property> propertyDeclaration() {
+    private static Parser<Character, Property> propertyDeclaration() {
         return openDecl("property")
                 .then(id()
                         .bind(clusterId -> propertyType()
@@ -243,7 +259,6 @@ class TulipParser {
     private static Parser<Character, Unit> controllerDeclaration() {
         return openDecl("controller")
                 .then(many(dataSet()))
-                .then(many(attributeDeclaration()))
                 .then(closeAndSkipAll());
     }
 
@@ -251,7 +266,9 @@ class TulipParser {
     private static Parser<Character, Unit> dataSet() {
         return openDecl("DataSet")
                 .bind(dataSet -> quotedString()
-                        .bind(name -> closeAndSkipAll()
+                        .then(many(attempt(dataSet())))
+                        .then(many(attempt(attributeDeclaration())))
+                        .then(closeAndSkipAll()
                         )
                 );
     }
@@ -283,7 +300,7 @@ class TulipParser {
     private static Parser<Character, PropertyType> propertyType() {
         IList<Parser<Character, PropertyType>> choices = IList.of();
         for (PropertyType propertyType : PropertyType.values()) {
-            choices = choices.add(keyword(propertyType.toString()).then(retn(propertyType)));
+            choices = choices.add(attempt(keyword(propertyType.toString()).then(retn(propertyType))));
         }
         return wspaces.then(choice(choices));
     }
