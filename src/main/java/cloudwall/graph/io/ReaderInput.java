@@ -37,6 +37,7 @@ public class ReaderInput {
             String line = scanner.nextLine();
             if (!excludeLine(line)) {
                 scannedText.append(line);
+                scannedText.append('\n');
             }
         }
     }

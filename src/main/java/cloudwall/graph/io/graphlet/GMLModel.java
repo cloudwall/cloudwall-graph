@@ -19,6 +19,8 @@ import cloudwall.graph.GraphModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Implementation of the Graph Modeling Language (GML) used by Graphlet.
@@ -32,6 +34,10 @@ public class GMLModel implements GraphModel {
 
     public GMLModel(List root) {
         this.root = root;
+    }
+
+    public List getRoot() {
+        return root;
     }
 
     public interface Value {
@@ -52,7 +58,11 @@ public class GMLModel implements GraphModel {
     }
 
     public static class List implements Value {
-        private Collection<ListEntry> entries = new ArrayList<>();
+        private Map<String, ListEntry> entries = new LinkedHashMap<>();
+
+        public Object getValue(String key) {
+            return entries.get(key);
+        }
 
         @Override
         public Object getValue() {
@@ -60,7 +70,7 @@ public class GMLModel implements GraphModel {
         }
 
         public void addEntry(ListEntry entry) {
-            entries.add(entry);
+            entries.put(entry.getKey(), entry);
         }
     }
 

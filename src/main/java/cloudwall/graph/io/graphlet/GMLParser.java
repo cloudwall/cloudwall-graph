@@ -20,9 +20,7 @@ import org.javafp.parsecj.Parser;
 
 import static cloudwall.graph.io.Parsers.jstring;
 import static cloudwall.graph.io.Parsers.token;
-import static org.javafp.parsecj.Combinators.choice;
-import static org.javafp.parsecj.Combinators.many;
-import static org.javafp.parsecj.Combinators.retn;
+import static org.javafp.parsecj.Combinators.*;
 import static org.javafp.parsecj.Text.*;
 
 /**
@@ -47,6 +45,7 @@ import static org.javafp.parsecj.Text.*;
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  * @see <a href="http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf">GML: A portable Graph File Format</a>
  */
+@SuppressWarnings("WeakerAccess")
 public class GMLParser {
 
     public static Parser<Character, GMLModel> newInstance() {
@@ -54,7 +53,7 @@ public class GMLParser {
     }
 
     private static Parser<Character, GMLModel.List> list() {
-        return many(listEntry()).bind(entries -> {
+        return many(attempt(listEntry())).bind(entries -> {
             GMLModel.List list = new GMLModel.List();
             entries.forEach(list::addEntry);
             return retn(list);
@@ -62,7 +61,7 @@ public class GMLParser {
     }
 
     private static Parser<Character, GMLModel.ListEntry> listEntry() {
-        return wspaces.then(alphaNum)
+        return alphaNum
                 .bind(key -> wspaces.then(value()
                 .bind(value -> retn(new GMLModel.ListEntry(key, value)))));
     }
@@ -70,8 +69,8 @@ public class GMLParser {
     @SuppressWarnings("unchecked")
     private static Parser<Character, GMLModel.Value> value() {
         return choice(
-                scalarValue(intr),
-                scalarValue(dble),
+                scalarValue(token(dble)),
+                scalarValue(token(intr)),
                 scalarValue(jstring),
                 token(chr('[')).then(list()
                         .bind(list -> token(chr(']'))
