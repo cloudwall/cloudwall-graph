@@ -17,10 +17,7 @@ package cloudwall.graph.io.graphlet;
 
 import cloudwall.graph.GraphModel;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Implementation of the Graph Modeling Language (GML) used by Graphlet.
@@ -41,14 +38,22 @@ public class GMLModel implements GraphModel {
     }
 
     public interface Value {
+        Class<?> getType();
         Object getValue();
     }
 
     public static class Scalar implements Value {
         private final Object value;
+        private final Class<?> type;
 
-        public Scalar(Object value) {
+        public Scalar(Object value, Class<?> type) {
             this.value = value;
+            this.type = type;
+        }
+
+        @Override
+        public Class<?> getType() {
+            return type;
         }
 
         @Override
@@ -57,11 +62,16 @@ public class GMLModel implements GraphModel {
         }
     }
 
-    public static class List implements Value {
+    public static class List implements Value, Iterable<ListEntry> {
         private Map<String, ListEntry> entries = new LinkedHashMap<>();
 
         public Object getValue(String key) {
             return entries.get(key);
+        }
+
+        @Override
+        public Class<?> getType() {
+            return List.class;
         }
 
         @Override
@@ -71,6 +81,11 @@ public class GMLModel implements GraphModel {
 
         public void addEntry(ListEntry entry) {
             entries.put(entry.getKey(), entry);
+        }
+
+        @Override
+        public Iterator<ListEntry> iterator() {
+            return entries.values().iterator();
         }
     }
 

@@ -17,11 +17,13 @@ package cloudwall.graph.io.graphlet;
 
 import cloudwall.graph.io.GraphFormat;
 import cloudwall.graph.io.GraphFormatException;
+import cloudwall.graph.io.ReaderInput;
+import org.javafp.parsecj.Reply;
 
 import javax.activation.DataSource;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import java.io.IOException;
+import java.io.*;
 import java.util.function.Consumer;
 
 /**
@@ -48,11 +50,60 @@ public class GMLFormat implements GraphFormat<GMLModel> {
 
     @Override
     public void read(DataSource dataIn, Consumer<GMLModel> modelConsumer) throws GraphFormatException, IOException {
+        try (
+                InputStream in = dataIn.getInputStream();
+                Reader r = new InputStreamReader(in)
+            )
+        {
+            ReaderInput parserInput = new ReaderInput(r);
+            Reply<Character, GMLModel> result = GMLParser.newInstance().parse(parserInput.toInput());
+            try {
+                GMLModel model = result.getResult();
+                modelConsumer.accept(model);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
 
+        }
     }
 
     @Override
-    public void write(DataSource dataOut, GMLModel model) {
+    public void write(DataSource dataOut, GMLModel model) throws IOException {
+        try (
+                OutputStream out = dataOut.getOutputStream();
+                PrintWriter pw = new PrintWriter(out)
+            )
+        {
+            GMLModel.List root = model.getRoot();
+            writeList(pw, root);
+        }
+
+    }
+
+    private void writeList(PrintWriter pw, GMLModel.List list) {
+        list.forEach(entry -> {
+            pw.write(" ");
+            pw.write(entry.getKey());
+            pw.write(" ");
+
+            GMLModel.Value value = entry.getValue();
+            Class<?> type = value.getType();
+
+            if (value instanceof GMLModel.Scalar) {
+                Object scalar = value.getValue();
+                if (String.class == type) {
+                    pw.write('"');
+                    pw.write(scalar == null ? "" : scalar.toString());
+                    pw.write('"');
+                } else {
+                    pw.write(scalar == null ? "0" : String.valueOf(scalar));
+                }
+            } else if (value instanceof GMLModel.List) {
+                pw.write("[");
+                writeList(pw, (GMLModel.List) value);
+                pw.write("]");
+            }
+        });
 
     }
 

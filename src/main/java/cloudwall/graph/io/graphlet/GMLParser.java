@@ -69,9 +69,9 @@ public class GMLParser {
     @SuppressWarnings("unchecked")
     private static Parser<Character, GMLModel.Value> value() {
         return choice(
-                scalarValue(token(dble)),
-                scalarValue(token(intr)),
-                scalarValue(jstring),
+                scalarValue(token(dble), Double.class),
+                scalarValue(token(intr), Integer.class),
+                scalarValue(jstring, String.class),
                 token(chr('[')).then(list()
                         .bind(list -> token(chr(']'))
                                 .bind(endList -> retn(list)
@@ -81,7 +81,7 @@ public class GMLParser {
         );
     }
 
-    private static <T> Parser<Character, GMLModel.Value> scalarValue(Parser<Character, T> p) {
-        return p.bind(parsedValue -> retn(new GMLModel.Scalar(parsedValue)));
+    private static <T> Parser<Character, GMLModel.Value> scalarValue(Parser<Character, T> p, Class<?> clazz) {
+        return p.bind(parsedValue -> retn(new GMLModel.Scalar(parsedValue, clazz)));
     }
 }
