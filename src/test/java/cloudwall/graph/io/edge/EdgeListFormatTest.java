@@ -15,9 +15,7 @@
  */
 package cloudwall.graph.io.edge;
 
-import cloudwall.graph.Graph;
-import cloudwall.graph.HeavyweightDirectedEdge;
-import cloudwall.graph.LightweightVertex;
+import cloudwall.graph.*;
 import cloudwall.graph.analysis.ConnectedComponentCollector;
 import cloudwall.graph.io.StringDataSource;
 import org.junit.Test;
@@ -38,7 +36,8 @@ public class EdgeListFormatTest {
         URL resource = getClass().getResource("email-Eu-core.txt");
         DataSource graphIn = new URLDataSource(resource);
         format.read(graphIn, model -> {
-            Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
+            GraphBuilder builder = new GraphBuilder();
+            Graph<?, ?> graph = builder.build(model);
             assertEquals(25571, graph.getEdgeCount());
             assertEquals(1005, graph.getVertexCount());
         });
@@ -53,14 +52,15 @@ public class EdgeListFormatTest {
         URL resource = getClass().getResource("tinyDG.txt");
         DataSource graphIn = new URLDataSource(resource);
         format.read(graphIn, model -> {
-            Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
+            GraphBuilder builder = new GraphBuilder();
+            Graph<?, ?> graph = builder.build(model);
             Collection<ConnectedComponentCollector.Component> components = graph.apply(new ConnectedComponentCollector<>());
             components.forEach(System.out::println);
         });
     }
 
     // from http://algs4.cs.princeton.edu/42digraph/
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings({"ConstantConditions", "unchecked"})
     @Test
     public void loadTinyDAG() throws Exception {
         EdgeListFormat format = new EdgeListFormat();
@@ -69,7 +69,8 @@ public class EdgeListFormatTest {
         URL resource = getClass().getResource("tinyDAG.txt");
         DataSource graphIn = new URLDataSource(resource);
         format.read(graphIn, model -> {
-            Graph<LightweightVertex, HeavyweightDirectedEdge<LightweightVertex>> graph = model.compile();
+            GraphBuilder builder = new GraphBuilder();
+            Graph<Vertex, LightweightEdge> graph = (Graph<Vertex, LightweightEdge>) builder.build(model);
             graph.visitDepthFirstFrom(graph.getVertex(0L), System.out::println);
 
             StringDataSource dataOut = new StringDataSource();

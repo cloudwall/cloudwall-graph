@@ -13,24 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package cloudwall.graph;
 
+import javax.annotation.Nonnull;
+
 /**
- * Event fired when a new edge is created between two vertices. If the vertices themselves have not been added previously
- * it may be preceded by {@link VertexAddedEvent}.
+ * Helper class that builds a graph as a side effect of visiting a graph model.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
-public class EdgeAddedEvent<V extends Vertex, E extends Edge> extends GraphChangeEvent<V,E> {
-    private final E edge;
+public class GraphBuilder implements GraphVisitor {
+    private AdjacencyListGraph<Vertex, Edge<Vertex>> graph = new AdjacencyListGraph<>();
 
-    public EdgeAddedEvent(MutableGraph<V, E> graph, E edge) {
-        super(graph);
-        this.edge = edge;
+    public Graph<?,?> build(GraphModel model) {
+        model.visit(this);
+        return graph;
     }
 
     @Override
-    public void apply() {
-        getGraph().addEdge(edge);
+    public void visitVertex(@Nonnull Vertex vertex) {
+        graph.addVertex(vertex);
+    }
+
+    @Override
+    public void visitEdge(@Nonnull Edge<Vertex> edge) {
+        graph.addEdge(edge);
     }
 }

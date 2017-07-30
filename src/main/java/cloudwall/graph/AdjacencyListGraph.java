@@ -52,8 +52,6 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
 
     private final Multimap<Object, E> adjacencyMap = ArrayListMultimap.create(1024, 8);
 
-    private final GraphChangeListenerSupport<V, E> listenerSupport = new GraphChangeListenerSupport<>(this);
-
     @Override
     public void forEachVertex(Consumer<V> visitor) {
         for (V vertex : vertices.values()) {
@@ -127,40 +125,22 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
     @Override
     public void addVertex(V vertex) {
         vertices.put(vertex.getVertexId(), vertex);
-        listenerSupport.vertexAdded(vertex);
     }
 
     @Override
     public void removeVertex(V vertex) throws NoSuchElementException {
         forEachConnectedEdge(vertex, this::removeEdge);
         vertices.remove(vertex.getVertexId());
-        listenerSupport.vertexRemoved(vertex);
     }
 
     @Override
     public void addEdge(E edge) throws NoSuchElementException {
         edges.add(edge);
         edge.forEachVertex(v -> adjacencyMap.put(v.getVertexId(), edge));
-        listenerSupport.edgeAdded(edge);
     }
 
     @Override
     public void removeEdge(E edge) throws NoSuchElementException {
         edges.remove(edge);
-        edge.forEachVertex(v -> {
-            Collection<E> adjacentEdges = adjacencyMap.get(v);
-            adjacentEdges.removeIf(e -> e == edge);
-        });
-        listenerSupport.edgeRemoved(edge);
-    }
-
-    @Override
-    public void addGraphChangeListener(GraphChangeListener listener) {
-        listenerSupport.addGraphChangeListener(listener);
-    }
-
-    @Override
-    public void removeGraphChangeListener(GraphChangeListener listener) {
-        listenerSupport.removeGraphChangeListener(listener);
     }
 }

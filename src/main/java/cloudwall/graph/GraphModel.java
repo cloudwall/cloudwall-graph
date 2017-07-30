@@ -16,9 +16,16 @@
 package cloudwall.graph;
 
 /**
- * An opaque data model containing graph data. It needs to be compiled into a more optimized form.
+ * An opaque data model containing graph data; its structure can be visited with a {@link GraphVisitor} but to
+ * get at the native format details you need to cast to a specific implementation.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
-public interface GraphModel {
+public interface GraphModel extends GraphMetadata {
+    /**
+     * Visits this graph if supported. Default implementation
+     */
+    default void visit(GraphVisitor visitor) {
+        visitor.start(this);
+    }
 }

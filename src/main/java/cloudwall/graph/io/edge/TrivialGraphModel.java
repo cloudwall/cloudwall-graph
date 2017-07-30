@@ -16,6 +16,7 @@
 package cloudwall.graph.io.edge;
 
 import cloudwall.graph.GraphModel;
+import cloudwall.graph.GraphVisitor;
 import org.jooq.lambda.tuple.Tuple2;
 
 import javax.activation.DataSource;
@@ -51,6 +52,21 @@ public class TrivialGraphModel implements GraphModel {
                 super.writeEdges(w);
             }
         };
+    }
+
+    @Override
+    public void visit(GraphVisitor visitor) {
+        edgeListModel.visit(visitor);
+    }
+
+    @Override
+    public long getVertexCount() {
+        return edgeListModel.getVertexCount();
+    }
+
+    @Override
+    public long getEdgeCount() {
+        return edgeListModel.getEdgeCount();
     }
 
     void parseAndAddEdge(String line, int lineNumber) throws IOException {

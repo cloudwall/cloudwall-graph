@@ -49,14 +49,4 @@ public interface MutableGraph<V extends Vertex, E extends Edge> extends Graph<V,
      * @throws NoSuchElementException if the edge is not in the graph.
      */
     void removeEdge(E edge) throws NoSuchElementException;
-
-    /**
-     * Adds the given listener to receive notification of add/remove operations on vertices & edges.
-     */
-    void addGraphChangeListener(GraphChangeListener listener);
-
-    /**
-     * Removes the given listener, if present, else no-op.
-     */
-    void removeGraphChangeListener(GraphChangeListener listener);
 }

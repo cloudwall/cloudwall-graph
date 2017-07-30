@@ -15,7 +15,7 @@
  */
 package cloudwall.graph.io.tulip;
 
-import cloudwall.graph.GraphModel;
+import cloudwall.graph.*;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDate;
@@ -112,5 +112,34 @@ public class TulipModel implements GraphModel {
 
     public void addProperty(Property property) {
         properties.add(property);
+    }
+
+    @Override
+    public void visit(GraphVisitor visitor) {
+        visitor.start(this);
+        Map<Integer, LightweightVertex> vertices = new HashMap<>();
+        nodes.forEach(node -> {
+            LightweightVertex vertex = new LightweightVertex(node.getId());
+            vertices.put(node.getId(), vertex);
+            visitor.visitVertex(new LightweightVertex(node.getId()));
+        });
+        edges.forEach(edge -> {
+            int node0 = edge.getNode0();
+            int node1 = edge.getNode0();
+            LightweightVertex vertex0 = vertices.get(node0);
+            LightweightVertex vertex1 = vertices.get(node1);
+            visitor.visitEdge(new LightweightEdge<>(vertex0, vertex1));
+        });
+        visitor.complete();
+    }
+
+    @Override
+    public long getVertexCount() {
+        return nodes.size();
+    }
+
+    @Override
+    public long getEdgeCount() {
+        return edges.size();
     }
 }

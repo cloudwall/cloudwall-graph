@@ -15,9 +15,12 @@
  */
 package cloudwall.graph.io.graphlet;
 
-import cloudwall.graph.GraphModel;
+import cloudwall.graph.*;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the Graph Modeling Language (GML) used by Graphlet.
@@ -27,7 +30,10 @@ import java.util.*;
  */
 @SuppressWarnings("WeakerAccess")
 public class GMLModel implements GraphModel {
+    private static final Integer IS_DIRECTED = Integer.valueOf(1);
+
     private List root;
+
 
     public GMLModel(List root) {
         this.root = root;
@@ -35,6 +41,51 @@ public class GMLModel implements GraphModel {
 
     public List getRoot() {
         return root;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void visit(GraphVisitor visitor) {
+        List graph = (List) root.getValue("graph");
+        if (graph == null) {
+            throw new IllegalStateException("mal-formed GML for graph representation: missing graph list");
+        }
+        visitor.start(this);
+
+        Map<Object, LightweightVertex> vertices = new HashMap<>();
+        Collection<List> nodes = graph.getValues("node");
+        nodes.forEach(node -> {
+            Object nodeId = node.getValue("id");
+            LightweightVertex vertex = new LightweightVertex(nodeId);
+            vertices.put(nodeId, vertex);
+            visitor.visitVertex(vertex);
+        });
+
+        boolean isDigraph = supports(Feature.DIRECTED);
+        Collection<List> edges = graph.getValues("edge");
+        edges.forEach(edge -> {
+            Object srcId = edge.getValue("source");
+            Object tgtId = edge.getValue("target");
+
+            LightweightVertex vertex0 = vertices.get(srcId);
+            LightweightVertex vertex1 = vertices.get(tgtId);
+
+            Edge<LightweightVertex> edgeToVisit = isDigraph
+                    ? new HeavyweightDirectedEdge<>(vertex0, vertex1)
+                    : new LightweightEdge<>(vertex0, vertex1);
+
+            visitor.visitEdge((Edge)edgeToVisit);
+        });
+
+
+        visitor.complete();
+    }
+
+    @Override
+    public boolean supports(Feature feature) {
+        List graph = (List) root.getValue("graph");
+        boolean isDirected = graph != null && IS_DIRECTED.equals(graph.getValue("directed"));
+        return (feature == Feature.DIRECTED) && isDirected;
     }
 
     public interface Value {
@@ -63,10 +114,16 @@ public class GMLModel implements GraphModel {
     }
 
     public static class List implements Value, Iterable<ListEntry> {
-        private Map<String, ListEntry> entries = new LinkedHashMap<>();
+        // for now doing O(n) linear search in getValue() / getValues() rather than storing multimap for every List
+        private java.util.List<ListEntry> entries = new ArrayList<>();
 
-        public Object getValue(String key) {
-            return entries.get(key);
+        public Object getValue(@Nonnull String key) {
+            return entries.stream().filter(entry -> key.equals(entry.key)).findFirst().orElseGet(null);
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> Collection<T> getValues(@Nonnull String key) {
+            return (Collection<T>)entries.stream().filter(entry -> key.equals(entry.key)).collect(Collectors.toList());
         }
 
         @Override
@@ -80,12 +137,13 @@ public class GMLModel implements GraphModel {
         }
 
         public void addEntry(ListEntry entry) {
-            entries.put(entry.getKey(), entry);
+            entries.add(entry);
         }
 
         @Override
+        @Nonnull
         public Iterator<ListEntry> iterator() {
-            return entries.values().iterator();
+            return entries.iterator();
         }
     }
 
