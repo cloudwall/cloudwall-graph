@@ -17,10 +17,8 @@ package cloudwall.graph.io.graphviz;
 
 import cloudwall.graph.GraphModel;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -28,12 +26,41 @@ import java.util.function.Function;
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  */
+@SuppressWarnings("WeakerAccess")
 public class GraphvizDotModel implements GraphModel {
+    private final Id id;
+    private final List<Statement> statements = new ArrayList<>();
+
     private boolean strict = false;
     private boolean digraph = false;
 
-    private Id id;
-    private List<Statement> statements = new ArrayList<>();
+    public GraphvizDotModel(@Nullable Id id) {
+        this.id = id;
+    }
+
+    public @Nullable Id getId() {
+        return id;
+    }
+
+    public boolean isStrict() {
+        return strict;
+    }
+
+    public boolean isDigraph() {
+        return digraph;
+    }
+
+    public void setStrict(boolean strict) {
+        this.strict = strict;
+    }
+
+    public void setDigraph(boolean digraph) {
+        this.digraph = digraph;
+    }
+
+    public void addStatement(Statement statement) {
+        statements.add(statement);
+    }
 
     public enum CompassPoint {
         NORTH("n"),
@@ -98,7 +125,20 @@ public class GraphvizDotModel implements GraphModel {
     }
 
     public static class Subgraph implements EdgeTerminal, Statement {
-        private Id id;
+        private final Id id;
+        private final List<Statement> statements = new ArrayList<>();
+
+        public Subgraph() {
+            this(null);
+        }
+
+        public Subgraph(Id id) {
+            this.id = id;
+        }
+
+        public void addStatement(Statement stmt) {
+            statements.add(stmt);
+        }
     }
 
     public static class NodeId implements EdgeTerminal {
@@ -107,7 +147,11 @@ public class GraphvizDotModel implements GraphModel {
         private CompassPoint compassPoint;
 
         public NodeId(Id nodeId) {
-            this(nodeId, null);
+            this(nodeId, null, null);
+        }
+
+        public NodeId(Id nodeId, Id portId) {
+            this(nodeId, portId, null);
         }
 
         public NodeId(Id nodeId, CompassPoint compassPoint) {
@@ -136,10 +180,10 @@ public class GraphvizDotModel implements GraphModel {
     }
 
     public static class AttributeList {
-        private Map<Id, Id> attributes = new LinkedHashMap<>();
+        private List<Attribute> attributes = new ArrayList<>();
 
-        public void addAttribute(Id name, Id value) {
-            attributes.put(name, value);
+        public void addAttribute(Attribute attr) {
+            attributes.add(attr);
         }
 
         public String toString() {
@@ -148,10 +192,10 @@ public class GraphvizDotModel implements GraphModel {
             } else {
                 StringBuilder sb = new StringBuilder();
                 sb.append("[");
-                for (Map.Entry<Id,Id> entry : attributes.entrySet()) {
-                    sb.append(entry.getKey());
+                for (Attribute attr : attributes) {
+                    sb.append(attr.id);
                     sb.append("=");
-                    sb.append(entry.getValue());
+                    sb.append(attr.value);
                     sb.append(";");
                 }
                 sb.setLength(sb.length() - 1);
@@ -163,6 +207,25 @@ public class GraphvizDotModel implements GraphModel {
 
         public boolean isEmpty() {
             return attributes.isEmpty();
+        }
+    }
+
+
+    public static class Attribute implements Statement {
+        private final Id id;
+        private final Id value;
+
+        public Attribute(Id id, Id value) {
+            this.id = id;
+            this.value = value;
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(id);
+            sb.append("=");
+            sb.append(value);
+            return sb.toString();
         }
     }
 
@@ -182,17 +245,11 @@ public class GraphvizDotModel implements GraphModel {
         }
     }
 
-    public static class SingleAttributeStatement implements Statement {
-        private Id id;
-        private Id value;
-
-    }
-
     public static class AttributeStatement implements Statement {
-        private AttributeScope scope;
-        private AttributeList attributes;
+        private final AttributeScope scope;
+        private final Collection<AttributeList> attributes;
 
-        public AttributeStatement(AttributeScope scope, AttributeList attributes) {
+        public AttributeStatement(AttributeScope scope, Collection<AttributeList> attributes) {
             this.scope = scope;
             this.attributes = attributes;
         }
@@ -203,8 +260,13 @@ public class GraphvizDotModel implements GraphModel {
     }
 
     public static class NodeStatement implements Statement {
-        private NodeId id;
-        private AttributeList attributes = new AttributeList();
+        private final NodeId id;
+        private final Collection<AttributeList> attributes;
+
+        public NodeStatement(NodeId id, Collection<AttributeList> attributes) {
+            this.id = id;
+            this.attributes = attributes;
+        }
 
         public String toString() {
             return conditionalToString(attributes, attrs -> id + " " + attrs);
@@ -226,18 +288,20 @@ public class GraphvizDotModel implements GraphModel {
         }
     }
 
-    public static class Edge {
-        private EdgeTerminal node0;
-        private EdgeOp operator;
-        private EdgeTerminal node1;
-    }
-
     public static class EdgeStatement implements Statement {
-        private List<Edge> edges = new ArrayList<>();
-        private AttributeList attributes;
+        private final EdgeTerminal lhsTerminal;
+        private final EdgeOp operator;
+        private final List<EdgeTerminal> rhsTerminals;
+        private final AttributeList attributes;
 
-        public String toString() {
-            return conditionalToString(attributes, attrs -> edges + " " + attrs);
+        public EdgeStatement(EdgeTerminal lhsTerminal,
+                             EdgeOp operator,
+                             List<EdgeTerminal> rhsTerminals,
+                             AttributeList attributes) {
+            this.lhsTerminal = lhsTerminal;
+            this.operator = operator;
+            this.rhsTerminals = rhsTerminals;
+            this.attributes = attributes;
         }
     }
 
@@ -247,7 +311,17 @@ public class GraphvizDotModel implements GraphModel {
         } else {
             return f.apply(attributes);
         }
+    }
 
-
+    private static String conditionalToString(Collection<AttributeList> attributeLists, Function<AttributeList, String> f) {
+        if (attributeLists.isEmpty()) {
+            return "";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (AttributeList attributes : attributeLists) {
+                sb.append(conditionalToString(attributes, f));
+            }
+            return sb.toString();
+        }
     }
 }

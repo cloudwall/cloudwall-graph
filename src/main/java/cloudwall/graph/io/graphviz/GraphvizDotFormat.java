@@ -36,7 +36,6 @@ import static org.javafp.parsecj.Text.wspaces;
  * Reader for the Graphviz DOT format.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
- * @see <a href="http://www.graphviz.org/content/dot-language">DOT grammar</a>
  */
 @SuppressWarnings("unchecked")
 public class GraphvizDotFormat implements GraphFormat<GraphvizDotModel> {
@@ -48,13 +47,6 @@ public class GraphvizDotFormat implements GraphFormat<GraphvizDotModel> {
             throw new RuntimeException(e);
         }
     }
-
-    private static final Parser<Character, String> graphToken = keyword("graph");
-    private static final Parser<Character, String> nodeToken = keyword("node");
-    private static final Parser<Character, String> edgeToken = keyword("edge");
-
-    private static final Parser<Character, String> directedEdgeOp = token(string("->"));
-    private static final Parser<Character, String> undirectedEdgeOp = token(string("--"));
 
     @Override
     public MimeType[] getSupportedContentTypes() {

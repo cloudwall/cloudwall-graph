@@ -23,7 +23,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Top level model for the Tulip file format.
+ * Top level model for the Tulip file format; you can use this to build TLP data models from
+ * scratch or as part of a parser.
  *
  * @author <a href="mailto:kyle.downey@gmail.com">Kyle F. Downey</a>
  * @see TulipFormat
