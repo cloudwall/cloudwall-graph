@@ -16,12 +16,30 @@
 
 package cloudwall.graph.io.graphviz;
 
+import cloudwall.graph.io.ReaderInput;
 import org.javafp.parsecj.State;
 import org.junit.Test;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GraphvizDotParserTest {
+    @Test
+    public void parseHelloWorld() throws Exception {
+        InputStream in = getClass().getResourceAsStream("helloworld.dot");
+        Reader r = new InputStreamReader(in);
+        ReaderInput input = new ReaderInput(r);
+        GraphvizDotModel model = GraphvizDotParser.newInstance().parse(input.toInput()).getResult();
+        assertEquals("G", String.valueOf(model.getId()));
+        assertFalse(model.isStrict());
+        assertTrue(model.isDigraph());
+    }
+
     @Test
     public void parseCompassPoints() throws Exception {
         for (GraphvizDotModel.CompassPoint point : GraphvizDotModel.CompassPoint.values()) {

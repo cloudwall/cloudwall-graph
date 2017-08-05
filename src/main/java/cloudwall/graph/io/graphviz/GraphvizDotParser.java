@@ -30,6 +30,7 @@ import static cloudwall.graph.io.Parsers.token;
 import static org.javafp.parsecj.Combinators.*;
 import static org.javafp.parsecj.Text.chr;
 import static org.javafp.parsecj.Text.regex;
+import static org.javafp.parsecj.Text.wspaces;
 
 /**
  * Helper class for {@link GraphvizDotFormat} that implements a basic recursive descent parser for the
@@ -46,7 +47,7 @@ class GraphvizDotParser {
         return option(keyword("strict").then(retn(true)), false)
                 .bind(strict -> choice(keyword("graph"), keyword("digraph"))
                         .bind(graphType -> option(id(), null)
-                                .bind(id -> between(token(chr('{')), token(chr('}')), statementList())
+                                .bind(id -> wspaces.then(between(token(chr('{')), token(chr('}')), statementList())
                                         .bind(stmts -> {
                                                     GraphvizDotModel model = new GraphvizDotModel(id);
                                                     model.setStrict(strict);
@@ -57,7 +58,7 @@ class GraphvizDotParser {
                                         )
                                 )
                         )
-                );
+                ));
     }
 
     // subgraph     : [ subgraph [ ID ] ] '{' stmt_list '}'
@@ -78,26 +79,26 @@ class GraphvizDotParser {
     static Parser<Character, IList<Statement>> statementList() {
         return statement().bind(initialStmt -> many(statementListTail()).bind(tail -> {
             IList<Statement> stmts = IList.of(initialStmt);
-            stmts.add(tail);
+            stmts.add((IList<Statement>) tail);
             return retn(stmts);
         }));
     }
 
     @SuppressWarnings("unchecked")
-    static Parser<Character, Statement> statementListTail() {
+    static Parser<Character, ? extends Statement> statementListTail() {
         return token(chr(';')).then(statement());
     }
 
     // node_stmt | edge_stmt | attr_stmt | ID '=' ID | subgraph
     @SuppressWarnings("unchecked")
-    static Parser<Character, Statement> statement() {
-        IList<Parser<Character, Statement>> parsers = IList.of();
-        parsers.add((IList<Parser<Character, Statement>>) attribute());
-        parsers.add((IList<Parser<Character, Statement>>) attributeStatement());
-        parsers.add((IList<Parser<Character, Statement>>) nodeStatement());
-        parsers.add((IList<Parser<Character, Statement>>) edgeStatement());
-        parsers.add((IList<Parser<Character, Statement>>) subgraph());
-        return choice(parsers);
+    static Parser<Character, ? extends Statement> statement() {
+        IList<Parser<Character, ? extends Statement>> parsers = IList.of();
+        parsers = parsers.add(attribute());
+        parsers = parsers.add(attributeStatement());
+        parsers = parsers.add(nodeStatement());
+        parsers = parsers.add(edgeStatement());
+        parsers = parsers.add(subgraph());
+        return choice((IList)parsers);
     }
 
     // edge_stmt    : (node_id | subgraph) edgeRHS [ attr_list ]
@@ -146,10 +147,10 @@ class GraphvizDotParser {
 
     @SuppressWarnings("unchecked")
     static Parser<Character, EdgeTerminal> edgeTerminal() {
-        IList<Parser<Character, EdgeTerminal>> parsers = IList.of();
-        parsers.add((IList<Parser<Character, EdgeTerminal>>) nodeId());
-        parsers.add((IList<Parser<Character, EdgeTerminal>>) subgraph());
-        return choice(parsers);
+        IList<Parser<Character, ? extends EdgeTerminal>> parsers = IList.of();
+        parsers = parsers.add(nodeId());
+        parsers = parsers.add(subgraph());
+        return choice((IList)parsers);
     }
 
     // node_stmt    : node_id [ attr_list ]
