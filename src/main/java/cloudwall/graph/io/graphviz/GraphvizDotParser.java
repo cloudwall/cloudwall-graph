@@ -16,21 +16,16 @@
 
 package cloudwall.graph.io.graphviz;
 
+import cloudwall.graph.io.graphviz.GraphvizDotModel.*;
 import org.javafp.data.IList;
 import org.javafp.parsecj.Parser;
 import org.jooq.lambda.tuple.Tuple2;
 
 import java.util.*;
 
-import cloudwall.graph.io.graphviz.GraphvizDotModel.*;
-
-import static cloudwall.graph.io.Parsers.jstring;
-import static cloudwall.graph.io.Parsers.keyword;
-import static cloudwall.graph.io.Parsers.token;
+import static cloudwall.graph.io.Parsers.*;
 import static org.javafp.parsecj.Combinators.*;
-import static org.javafp.parsecj.Text.chr;
-import static org.javafp.parsecj.Text.regex;
-import static org.javafp.parsecj.Text.wspaces;
+import static org.javafp.parsecj.Text.*;
 
 /**
  * Helper class for {@link GraphvizDotFormat} that implements a basic recursive descent parser for the

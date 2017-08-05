@@ -17,6 +17,8 @@
 package cloudwall.graph.io.graphviz;
 
 import cloudwall.graph.io.ReaderInput;
+import cloudwall.graph.io.graphviz.GraphvizDotModel.*;
+
 import org.javafp.parsecj.State;
 import org.junit.Test;
 
@@ -24,9 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GraphvizDotParserTest {
     @Test
@@ -35,9 +35,22 @@ public class GraphvizDotParserTest {
         Reader r = new InputStreamReader(in);
         ReaderInput input = new ReaderInput(r);
         GraphvizDotModel model = GraphvizDotParser.newInstance().parse(input.toInput()).getResult();
+        EdgeStatement edge = (EdgeStatement) model.getStatements().iterator().next();
+        NodeId lhs = (NodeId)edge.getLhsTerminal();
+        NodeId rhs = (NodeId)edge.getRhsTerminals().iterator().next();
+
         assertEquals("G", String.valueOf(model.getId()));
         assertFalse(model.isStrict());
         assertTrue(model.isDigraph());
+        assertEquals(1, model.getStatements().size());
+        assertEquals("Hello", lhs.getNodeId().toString());
+        assertNull(lhs.getPortId());
+        assertNull(lhs.getCompassPoint());
+        assertEquals(EdgeOp.DIRECTED, edge.getOperator());
+        assertEquals("World", rhs.getNodeId().toString());
+        assertNull(lhs.getPortId());
+        assertNull(lhs.getCompassPoint());
+        assertTrue(edge.getAttributes().isEmpty());
     }
 
     @Test

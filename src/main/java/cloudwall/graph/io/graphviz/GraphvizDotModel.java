@@ -58,6 +58,10 @@ public class GraphvizDotModel implements GraphModel {
         this.digraph = digraph;
     }
 
+    public Collection<Statement> getStatements() {
+        return statements;
+    }
+
     public void addStatement(Statement statement) {
         statements.add(statement);
     }
@@ -162,6 +166,18 @@ public class GraphvizDotModel implements GraphModel {
             this.nodeId = nodeId;
             this.portId = portId;
             this.compassPoint = compassPoint;
+        }
+
+        public Id getNodeId() {
+            return nodeId;
+        }
+
+        public Id getPortId() {
+            return portId;
+        }
+
+        public CompassPoint getCompassPoint() {
+            return compassPoint;
         }
 
         public String toString() {
@@ -302,6 +318,23 @@ public class GraphvizDotModel implements GraphModel {
             this.operator = operator;
             this.rhsTerminals = rhsTerminals;
             this.attributes = attributes;
+        }
+
+
+        public EdgeTerminal getLhsTerminal() {
+            return lhsTerminal;
+        }
+
+        public EdgeOp getOperator() {
+            return operator;
+        }
+
+        public Collection<EdgeTerminal> getRhsTerminals() {
+            return rhsTerminals;
+        }
+
+        public AttributeList getAttributes() {
+            return attributes;
         }
     }
 
