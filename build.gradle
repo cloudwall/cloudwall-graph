@@ -73,7 +73,7 @@ bintray {
         githubReleaseNotesFile = 'README.md'
         
 		version {
-			name = '0.3'
+			name = '0.2'
 			vcsTag = 'v0.2'
 			attributes = ['gradle-plugin': 'io.cloudwall:cloudwall-graph:0.2']
 		}
