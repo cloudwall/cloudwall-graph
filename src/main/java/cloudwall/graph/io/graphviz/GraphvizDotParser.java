@@ -74,7 +74,7 @@ class GraphvizDotParser {
     static Parser<Character, IList<Statement>> statementList() {
         return statement().bind(initialStmt -> many(statementListTail()).bind(tail -> {
             IList<Statement> stmts = IList.of(initialStmt);
-            stmts.add((IList<Statement>) tail);
+            stmts.addAll((IList<Statement>)tail);
             return retn(stmts);
         }));
     }

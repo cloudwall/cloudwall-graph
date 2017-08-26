@@ -16,7 +16,7 @@
 
 package cloudwall.graph.io;
 
-import org.javafp.parsecj.State;
+import org.javafp.parsecj.input.Input;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -46,8 +46,8 @@ public class ReaderInput {
         this(new StringReader(txt));
     }
 
-    public State<Character> toInput() {
-        return State.of(scannedText.toString());
+    public Input<Character> toInput() {
+        return Input.of(scannedText.toString());
     }
 
     public boolean excludeLine(String line) {

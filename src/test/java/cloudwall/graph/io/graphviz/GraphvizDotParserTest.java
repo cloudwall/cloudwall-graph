@@ -19,7 +19,7 @@ package cloudwall.graph.io.graphviz;
 import cloudwall.graph.io.ReaderInput;
 import cloudwall.graph.io.graphviz.GraphvizDotModel.*;
 
-import org.javafp.parsecj.State;
+import org.javafp.parsecj.input.Input;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -29,6 +29,7 @@ import java.io.Reader;
 
 import static org.junit.Assert.*;
 
+// bunch of problems still with Graphviz parsing
 @Ignore
 public class GraphvizDotParserTest {
     @Test
@@ -115,43 +116,43 @@ public class GraphvizDotParserTest {
     @Test
     public void parseCompassPoints() throws Exception {
         for (GraphvizDotModel.CompassPoint point : GraphvizDotModel.CompassPoint.values()) {
-            GraphvizDotParser.compassPoint().parse(State.of(point.getLabel()));
+            GraphvizDotParser.compassPoint().parse(Input.of(point.getLabel()));
         }
     }
 
     @Test
     public void parseNodeId() throws Exception {
-        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(State.of("A_BC")).getResult();
+        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(Input.of("A_BC")).getResult();
         assertEquals("A_BC", nodeId.toString());
     }
 
     @Test
     public void parseNodeIdInt() throws Exception {
-        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(State.of("123")).getResult();
+        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(Input.of("123")).getResult();
         assertEquals("123", nodeId.toString());
     }
 
     @Test
     public void parseNodeIdPortIdBothInt() throws Exception {
-        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(State.of("123:456")).getResult();
+        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(Input.of("123:456")).getResult();
         assertEquals("123:456", nodeId.toString());
     }
 
     @Test
     public void parseNodeIdWithPort() throws Exception {
-        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(State.of("\"X yz\":32")).getResult();
+        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(Input.of("\"X yz\":32")).getResult();
         assertEquals("\"X yz\":32", nodeId.toString());
     }
 
     @Test
     public void parseNodeIdWithCompassPoint() throws Exception {
-        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(State.of("x64:nw")).getResult();
+        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(Input.of("x64:nw")).getResult();
         assertEquals("x64:nw", nodeId.toString());
     }
     
     @Test
     public void parseNodeIdWithPortAndCompassPoint() throws Exception {
-        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(State.of("ABC:123:_")).getResult();
+        GraphvizDotModel.NodeId nodeId = GraphvizDotParser.nodeId().parse(Input.of("ABC:123:_")).getResult();
         assertEquals("ABC:123:_", nodeId.toString());
     }
 

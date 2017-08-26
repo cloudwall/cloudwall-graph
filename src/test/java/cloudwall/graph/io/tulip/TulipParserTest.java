@@ -17,19 +17,11 @@
 package cloudwall.graph.io.tulip;
 
 import com.google.common.collect.ImmutableList;
-import org.javafp.data.IList;
-import org.javafp.data.Unit;
-import org.javafp.parsecj.Combinators;
-import org.javafp.parsecj.Parser;
-import org.javafp.parsecj.State;
 import org.junit.Test;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TulipParserTest {
     @Test
