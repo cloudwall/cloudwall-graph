@@ -59,14 +59,14 @@ class GraphvizDotParser {
     // subgraph     : [ subgraph [ ID ] ] '{' stmt_list '}'
     static Parser<Character, Subgraph> subgraph() {
         return keyword("subgraph").then(option(id(), null)
-                .bind(id -> between(token(chr('{')), token(chr('}')), statementList()
+                .bind(id -> wspaces.then(between(token(chr('{')), token(chr('}')), statementList()
                         .bind(stmts -> {
                             Subgraph subgraph = new Subgraph();
                             stmts.forEach(subgraph::addStatement);
                             return retn(null);
                         }))
                 )
-        );
+        ));
     }
 
     // stmt_list    : [ stmt [ ';' ] stmt_list ]
@@ -88,11 +88,11 @@ class GraphvizDotParser {
     @SuppressWarnings("unchecked")
     static Parser<Character, ? extends Statement> statement() {
         IList<Parser<Character, ? extends Statement>> parsers = IList.of();
-        parsers = parsers.add(attribute());
-        parsers = parsers.add(attributeStatement());
-        parsers = parsers.add(nodeStatement());
-        parsers = parsers.add(edgeStatement());
-        parsers = parsers.add(subgraph());
+        parsers = parsers.add(attempt(attribute()));
+        parsers = parsers.add(attempt(attributeStatement()));
+        parsers = parsers.add(attempt(nodeStatement()));
+        parsers = parsers.add(attempt(edgeStatement()));
+        parsers = parsers.add(attempt(subgraph()));
         return choice((IList)parsers);
     }
 
@@ -128,7 +128,7 @@ class GraphvizDotParser {
     }
 
     static Parser<Character, EdgeOp> edgeOp() {
-        return regex("--|->").bind(op -> {
+        return regex("\\s*--|->\\s*").bind(op -> {
             switch (op) {
                 case "--":
                     return retn(EdgeOp.UNDIRECTED);
@@ -143,8 +143,8 @@ class GraphvizDotParser {
     @SuppressWarnings("unchecked")
     static Parser<Character, EdgeTerminal> edgeTerminal() {
         IList<Parser<Character, ? extends EdgeTerminal>> parsers = IList.of();
-        parsers = parsers.add(nodeId());
-        parsers = parsers.add(subgraph());
+        parsers = parsers.add(attempt(nodeId()));
+        parsers = parsers.add(attempt(subgraph()));
         return choice((IList)parsers);
     }
 
@@ -190,7 +190,11 @@ class GraphvizDotParser {
     }
 
     static Parser<Character, Attribute> attribute() {
-        return id().bind(attr -> id().bind(value -> retn(new Attribute(attr, value))));
+        return id().bind(attr -> token(chr('='))
+                .bind(op -> id()
+                        .bind(value -> retn(new Attribute(attr, value)))
+                )
+        );
     }
 
     // node_id      : ID [ port ]

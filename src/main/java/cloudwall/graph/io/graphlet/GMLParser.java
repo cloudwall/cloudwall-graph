@@ -38,7 +38,7 @@ import static org.javafp.parsecj.Text.*;
  *     sign ::= empty | + | -
  *     digit ::= [0-9]
  *     Mantissa ::= empty | E sign digit
- *     instring ::= ASCII - {&,"} | & character+ ;
+ *     instring ::= ASCII - {&amp;,"} | &amp; character+ ;
  *     whitespace ::= space | tabulator | newline
  * </pre>
  *

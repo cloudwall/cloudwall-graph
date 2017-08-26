@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * Graph implementation based on adjacency lists internally. This is the benchmark as well: any more optimized graphs
  * need to compare favorably with this simple approach.
  *
- * <p>It supports both BFS and DFS, implemented with queue & stack (iterative). Given the graph:
+ * <p>It supports both BFS and DFS, implemented with queue &amp; stack (iterative). Given the graph:
  *
  * <pre>
  *                  A

@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  * {@link Provider#getSupportedFormats()} and {@link #getSupportedContentTypes()} like so:
  *
  * <pre>
- * Set<MimeType> allSupportedTypes = new HashSet<>();
+ * Set&lt;MimeType&gt; allSupportedTypes = new HashSet&lt;&gt;();
  * for (GraphFormat format : GraphFormat.Provider.getSupportedFormats() {
  *     Iterables.addAll(allSupportedTypes, format.getSupportedContentTypes());
  * }
