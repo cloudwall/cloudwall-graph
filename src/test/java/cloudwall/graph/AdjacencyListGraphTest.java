@@ -119,7 +119,7 @@ public class AdjacencyListGraphTest {
         graph.removeVertex(vertexMap.get("A"));
 
         assertEquals(8, graph.getVertexCount());
-        assertEquals(6, graph.getEdgeCount());
+        assertEquals(7, graph.getEdgeCount());
 
         dfs(graph, "B");
         dfs(graph, "C");

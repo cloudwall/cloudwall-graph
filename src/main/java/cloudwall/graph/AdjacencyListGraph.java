@@ -142,5 +142,6 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
     @Override
     public void removeEdge(E edge) throws NoSuchElementException {
         edges.remove(edge);
+        edge.forEachVertex(v -> adjacencyMap.remove(v.getVertexId(), edge));
     }
 }
