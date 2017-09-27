@@ -71,8 +71,7 @@ public class AdjacencyListGraph<V extends Vertex, E extends Edge<V>> implements 
         adjacencyMap.get(vertex.getVertexId()).forEach(edges);
     }
 
-
-    @SuppressWarnings("WeakerAccess")
+    @Override
     public void forEachTraversableEdge(V vertex, Consumer<E> edges) {
         adjacencyMap.get(vertex.getVertexId()).stream().filter(e -> e.isTraversable(vertex)).forEach(edges);
     }

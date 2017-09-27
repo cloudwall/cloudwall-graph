@@ -20,7 +20,7 @@ apply plugin: 'com.jfrog.bintray'
 
 // global settings
 group 'io.cloudwall'
-version '0.2.1'
+version '0.2.2'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 repositories {

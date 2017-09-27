@@ -43,6 +43,12 @@ public interface Graph<V extends Vertex, E extends Edge> {
     void forEachConnectedEdge(V vertex, Consumer<E> edges);
 
     /**
+     * Iterates over all edges connected to the given vertex that can be traversed; this will differ from
+     * {@link #forEachConnectedEdge(Vertex, Consumer)} in the case of inbound directed edges.
+     */
+    void forEachTraversableEdge(V vertex, Consumer<E> edges);
+
+    /**
      * Given a starting vertex performs a BFS (Breadth First Search) from that vertex. In case of a graph with cycles
      * the implementation should guarantee that the operation terminates and visits all vertices in scope only once.
      */
