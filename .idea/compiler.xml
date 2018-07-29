@@ -14,8 +14,13 @@
       <entry name="?*.ftl" />
     </wildcardResourcePatterns>
     <bytecodeTargetLevel>
-      <module name="cloudwall-graph_main" target="1.8" />
-      <module name="cloudwall-graph_test" target="1.8" />
+      <module name="cloudwall-graph_main" target="1.9" />
+      <module name="cloudwall-graph_test" target="1.9" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cloudwall-graph_main" options="--add-modules=java.activation" />
+    </option>
   </component>
 </project>
